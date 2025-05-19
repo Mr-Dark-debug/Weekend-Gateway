@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
+// Remove geolocator and permission_handler imports for now
 import 'package:weekend_gateway/presentation/common/neo_button.dart';
 import 'package:weekend_gateway/presentation/common/neo_card.dart';
 import 'package:weekend_gateway/presentation/theme/app_theme.dart';
@@ -16,10 +17,17 @@ class _SearchScreenState extends State<SearchScreen> {
   bool _isLoading = false;
   List<Map<String, dynamic>> _searchResults = [];
   
+  // Location variables
+  // Remove Position type
+  bool _isLoadingLocation = false;
+  String? _locationError;
+  
   // Filter states
   int _selectedDays = 0; // 0 means "Any"
   String _selectedRegion = 'Any';
   double _minRating = 0.0;
+  String _selectedPriceRange = 'Any';
+  bool _nearbyOnly = false;
   
   final List<String> _regions = [
     'Any',
@@ -31,10 +39,18 @@ class _SearchScreenState extends State<SearchScreen> {
     'Oceania',
   ];
   
+  final List<String> _priceRanges = [
+    'Any',
+    'Budget',
+    'Medium',
+    'Luxury',
+  ];
+  
   @override
   void initState() {
     super.initState();
     _searchController.text = '';
+    // Remove _getLocationPermission call
     _performSearch();
   }
   
@@ -42,6 +58,42 @@ class _SearchScreenState extends State<SearchScreen> {
   void dispose() {
     _searchController.dispose();
     super.dispose();
+  }
+  
+  // Simplified location handling - mock implementation for now
+  Future<void> _getLocationPermission() async {
+    // Mock implementation until we can install the proper packages
+    setState(() {
+      _locationError = 'Location services will be available in a future update';
+    });
+  }
+  
+  // Mock current location function
+  Future<void> _getCurrentLocation() async {
+    setState(() {
+      _isLoadingLocation = true;
+      _locationError = null;
+    });
+    
+    try {
+      // Mock getting the position
+      await Future.delayed(const Duration(seconds: 1));
+      
+      setState(() {
+        // Mock position set
+        _isLoadingLocation = false;
+      });
+      
+      // Refresh search with location data if 'nearby only' is enabled
+      if (_nearbyOnly) {
+        _performSearch();
+      }
+    } catch (e) {
+      setState(() {
+        _locationError = 'Failed to get location: $e';
+        _isLoadingLocation = false;
+      });
+    }
   }
   
   Future<void> _performSearch() async {
@@ -52,60 +104,102 @@ class _SearchScreenState extends State<SearchScreen> {
     // Simulate API call
     await Future.delayed(const Duration(milliseconds: 800));
     
-    // Mock search results
+    // Mock search results with sample coordinates
+    final List<Map<String, dynamic>> results = [
+      {
+        'id': '1',
+        'title': 'Weekend in Paris',
+        'location': 'Paris, France',
+        'region': 'Europe',
+        'author': 'Maria C.',
+        'days': 3,
+        'rating': 4.8,
+        'price': 'Medium',
+        'price_level': 2,
+        'lat': 48.8566, // Paris coordinates
+        'lng': 2.3522,
+        'distance': 350, // Mocked distance in km
+        'image': 'https://images.unsplash.com/photo-1502602898657-3e91760cbb34?q=80&w=2073',
+      },
+      {
+        'id': '2',
+        'title': 'Barcelona Food Tour',
+        'location': 'Barcelona, Spain',
+        'region': 'Europe',
+        'author': 'Carlos M.',
+        'days': 2,
+        'rating': 4.6,
+        'price': 'Budget',
+        'price_level': 1,
+        'lat': 41.3851, // Barcelona coordinates
+        'lng': 2.1734,
+        'distance': 980, // Mocked distance in km
+        'image': 'https://images.unsplash.com/photo-1583422409516-2895a77efded?q=80&w=2070',
+      },
+      {
+        'id': '3',
+        'title': 'Tokyo Adventure',
+        'location': 'Tokyo, Japan',
+        'region': 'Asia',
+        'author': 'Kenji T.',
+        'days': 4,
+        'rating': 4.9,
+        'price': 'Luxury',
+        'price_level': 3,
+        'lat': 35.6762, // Tokyo coordinates
+        'lng': 139.6503,
+        'distance': 9500, // Mocked distance in km
+        'image': 'https://images.unsplash.com/photo-1503899036084-c55cdd92da26?q=80&w=2187',
+      },
+      {
+        'id': '4',
+        'title': 'New York City Break',
+        'location': 'New York, USA',
+        'region': 'North America',
+        'author': 'Alex S.',
+        'days': 3,
+        'rating': 4.7,
+        'price': 'Medium',
+        'price_level': 2,
+        'lat': 40.7128, // New York coordinates
+        'lng': -74.0060,
+        'distance': 5800, // Mocked distance in km
+        'image': 'https://images.unsplash.com/photo-1496442226666-8d4d0e62e6e9?q=80&w=2070',
+      },
+      {
+        'id': '5',
+        'title': 'Sydney Weekend',
+        'location': 'Sydney, Australia',
+        'region': 'Oceania',
+        'author': 'Emma T.',
+        'days': 2,
+        'rating': 4.5,
+        'price': 'Luxury',
+        'price_level': 3,
+        'lat': -33.8688, // Sydney coordinates
+        'lng': 151.2093,
+        'distance': 12000, // Mocked distance in km
+        'image': 'https://images.unsplash.com/photo-1506973035872-a4ec16b8e8d9?q=80&w=2070',
+      },
+      {
+        'id': '6',
+        'title': 'Local City Tour',
+        'location': 'Chicago, USA',
+        'region': 'North America',
+        'author': 'Local Guide',
+        'days': 1,
+        'rating': 4.2,
+        'price': 'Budget',
+        'price_level': 1,
+        'lat': 41.8781, // Chicago coordinates
+        'lng': -87.6298,
+        'distance': 50, // Mocked as nearby
+        'image': 'https://images.unsplash.com/photo-1494522855154-9297ac14b55f?q=80&w=2070',
+      },
+    ];
+    
     setState(() {
-      _searchResults = [
-        {
-          'id': '1',
-          'title': 'Weekend in Paris',
-          'location': 'Paris, France',
-          'region': 'Europe',
-          'author': 'Maria C.',
-          'days': 3,
-          'rating': 4.8,
-          'image': 'https://images.unsplash.com/photo-1502602898657-3e91760cbb34?q=80&w=2073',
-        },
-        {
-          'id': '2',
-          'title': 'Barcelona Food Tour',
-          'location': 'Barcelona, Spain',
-          'region': 'Europe',
-          'author': 'Carlos M.',
-          'days': 2,
-          'rating': 4.6,
-          'image': 'https://images.unsplash.com/photo-1583422409516-2895a77efded?q=80&w=2070',
-        },
-        {
-          'id': '3',
-          'title': 'Tokyo Adventure',
-          'location': 'Tokyo, Japan',
-          'region': 'Asia',
-          'author': 'Kenji T.',
-          'days': 4,
-          'rating': 4.9,
-          'image': 'https://images.unsplash.com/photo-1503899036084-c55cdd92da26?q=80&w=2187',
-        },
-        {
-          'id': '4',
-          'title': 'New York City Break',
-          'location': 'New York, USA',
-          'region': 'North America',
-          'author': 'Alex S.',
-          'days': 3,
-          'rating': 4.7,
-          'image': 'https://images.unsplash.com/photo-1496442226666-8d4d0e62e6e9?q=80&w=2070',
-        },
-        {
-          'id': '5',
-          'title': 'Sydney Weekend',
-          'location': 'Sydney, Australia',
-          'region': 'Oceania',
-          'author': 'Emma T.',
-          'days': 2,
-          'rating': 4.5,
-          'image': 'https://images.unsplash.com/photo-1506973035872-a4ec16b8e8d9?q=80&w=2070',
-        },
-      ];
+      _searchResults = results;
       
       // Apply filters
       if (_selectedDays > 0) {
@@ -118,6 +212,26 @@ class _SearchScreenState extends State<SearchScreen> {
       
       if (_minRating > 0) {
         _searchResults = _searchResults.where((item) => (item['rating'] as double) >= _minRating).toList();
+      }
+      
+      // Apply price range filter
+      if (_selectedPriceRange != 'Any') {
+        _searchResults = _searchResults.where((item) => item['price'] == _selectedPriceRange).toList();
+      }
+      
+      // Apply nearby filter (within 100km)
+      if (_nearbyOnly) {
+        _searchResults = _searchResults.where((item) => (item['distance'] as int) <= 100).toList();
+        
+        // Show message if location services not available
+        if (_locationError != null) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(_locationError ?? 'Location not available. Please enable location services.'),
+              duration: const Duration(seconds: 3),
+            ),
+          );
+        }
       }
       
       if (_searchController.text.isNotEmpty) {
@@ -236,6 +350,8 @@ class _SearchScreenState extends State<SearchScreen> {
                     _selectedDays = 0;
                     _selectedRegion = 'Any';
                     _minRating = 0.0;
+                    _selectedPriceRange = 'Any';
+                    _nearbyOnly = false;
                   });
                   _performSearch();
                 },
@@ -253,6 +369,10 @@ class _SearchScreenState extends State<SearchScreen> {
                 _buildRegionFilter(),
                 const SizedBox(width: 12),
                 _buildRatingFilter(),
+                const SizedBox(width: 12),
+                _buildPriceFilter(),
+                const SizedBox(width: 12),
+                _buildNearbyFilter(),
               ],
             ),
           ),
@@ -391,6 +511,114 @@ class _SearchScreenState extends State<SearchScreen> {
     );
   }
   
+  Widget _buildPriceFilter() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          'PRICE',
+          style: Theme.of(context).textTheme.labelLarge,
+        ),
+        const SizedBox(height: 8),
+        Container(
+          height: 40,
+          decoration: BoxDecoration(
+            border: Border.all(
+              color: AppTheme.primaryForeground,
+              width: AppTheme.borderWidth,
+            ),
+          ),
+          child: DropdownButton<String>(
+            value: _selectedPriceRange,
+            underline: const SizedBox(),
+            padding: const EdgeInsets.symmetric(horizontal: 12),
+            items: _priceRanges.map((price) => 
+              DropdownMenuItem(value: price, child: Text(price)),
+            ).toList(),
+            onChanged: (value) {
+              if (value != null) {
+                setState(() {
+                  _selectedPriceRange = value;
+                });
+                _performSearch();
+              }
+            },
+          ),
+        ),
+      ],
+    );
+  }
+  
+  Widget _buildNearbyFilter() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          'LOCATION',
+          style: Theme.of(context).textTheme.labelLarge,
+        ),
+        const SizedBox(height: 8),
+        Container(
+          height: 40,
+          decoration: BoxDecoration(
+            border: Border.all(
+              color: _nearbyOnly ? AppTheme.primaryAccent : AppTheme.primaryForeground,
+              width: AppTheme.borderWidth,
+            ),
+          ),
+          child: InkWell(
+            onTap: () {
+              setState(() {
+                _nearbyOnly = !_nearbyOnly;
+                
+                // If enabling nearby filter, show message
+                if (_nearbyOnly) {
+                  _getLocationPermission();
+                }
+              });
+              _performSearch();
+            },
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 12),
+              child: Row(
+                children: [
+                  _isLoadingLocation
+                    ? SizedBox(
+                        width: 16,
+                        height: 16,
+                        child: CircularProgressIndicator(
+                          strokeWidth: 2,
+                          color: AppTheme.primaryAccent,
+                        ),
+                      )
+                    : Icon(
+                        Icons.location_on,
+                        size: 16,
+                        color: _nearbyOnly ? AppTheme.primaryAccent : null,
+                      ),
+                  const SizedBox(width: 8),
+                  Text(
+                    'NEARBY ONLY',
+                    style: TextStyle(
+                      color: _nearbyOnly ? AppTheme.primaryAccent : null,
+                      fontWeight: _nearbyOnly ? FontWeight.bold : null,
+                    ),
+                  ),
+                  const SizedBox(width: 8),
+                  Icon(
+                    _nearbyOnly ? Icons.check_box : Icons.check_box_outline_blank,
+                    size: 16,
+                    color: _nearbyOnly ? AppTheme.primaryAccent : null,
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+  
   Widget _buildNoResults() {
     return Center(
       child: Column(
@@ -505,6 +733,45 @@ class _SearchScreenState extends State<SearchScreen> {
                                 ),
                               ],
                             ),
+                          ],
+                        ),
+                        const SizedBox(height: 8),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            // Display price
+                            Row(
+                              children: [
+                                Icon(
+                                  Icons.payments_outlined,
+                                  size: 14,
+                                  color: AppTheme.primaryForeground,
+                                ),
+                                const SizedBox(width: 4),
+                                Text(
+                                  result['price'],
+                                  style: Theme.of(context).textTheme.bodySmall,
+                                ),
+                              ],
+                            ),
+                            // Display distance if less than 1000km
+                            if ((result['distance'] as int) < 1000)
+                              Row(
+                                children: [
+                                  Icon(
+                                    Icons.near_me,
+                                    size: 14,
+                                    color: AppTheme.primaryAccent,
+                                  ),
+                                  const SizedBox(width: 4),
+                                  Text(
+                                    '${result['distance']} km',
+                                    style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                                      color: AppTheme.primaryAccent,
+                                    ),
+                                  ),
+                                ],
+                              ),
                           ],
                         ),
                         const SizedBox(height: 8),

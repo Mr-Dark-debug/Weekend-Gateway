@@ -1,88 +1,115 @@
-# Weekend Gateway
+# Weekend Gateway 🏖️
 
-A community-driven travel itinerary sharing application with neo-brutalist design principles.
+![Flutter](https://img.shields.io/badge/Flutter-3.0+-02569B?style=flat&logo=flutter)
+![Supabase](https://img.shields.io/badge/Supabase-Backend-3ECF8E?style=flat&logo=supabase)
+![License](https://img.shields.io/badge/License-MIT-blue.svg)
+![CI](https://github.com/yourusername/weekend_gateway/workflows/CI/badge.svg)
 
-## Features
+<p align="center">
+  <img src="assets/images/logo.png" alt="Weekend Gateway Logo" width="180" />
+</p>
 
-- **User Authentication**: Sign up, login, and password reset functionality
-- **Itinerary Creation**: Create detailed travel itineraries with multiple days and activities
-- **Itinerary Browsing**: Discover itineraries created by other users
-- **Search & Filters**: Find itineraries by destination, duration, or rating
-- **User Profiles**: View your created itineraries and personal information
+**Weekend Gateway** is an open-source, community-driven travel itinerary sharing application with a distinct neo-brutalist design. Plan your weekends and trips, share with the community, and discover amazing destinations curated by fellow travelers.
 
-## Design System
+<p align="center">
+  <img src="screenshots/screenshot1.png" width="180" />
+  <img src="screenshots/screenshot2.png" width="180" />
+  <img src="screenshots/screenshot3.png" width="180" />
+</p>
 
-Weekend Gateway features a neo-brutalist design system with the following key principles:
+## 🚀 Features
 
-- White backgrounds with black text
-- Red/yellow accent colors
-- Monospace typography
-- Sharp corners with thick black borders
-- Custom animations with abrupt transitions
+- **Neo-brutalist Design** - Bold, high-contrast visuals with a raw aesthetic
+- **Community-Driven Content** - Discover and share travel itineraries
+- **Interactive Trip Plans** - View detailed day-by-day itineraries
+- **Discovery & Filters** - Search by location, price range, duration, and more
+- **Upvoting & Commenting** - Engage with the community on their itineraries
+- **User Profiles** - Track created and saved itineraries
+- **Responsive Design** - Fully functional on mobile and web
 
-## Tech Stack
+## ⬇️ Download
 
-- **Flutter**: UI framework
-- **Supabase**: Backend as a Service
-- **Provider**: State management
-- **flutter_animate**: Animation library
+You can download the latest version of Weekend Gateway from the [Releases](https://github.com/yourusername/weekend_gateway/releases) page.
 
-## Getting Started
+## 🏗️ Tech Stack
 
-1. **Clone the repository**
+- **Frontend**: Flutter
+- **Backend**: Supabase (Auth, Storage, Database)
+- **State Management**: Provider
+- **UI/UX**: Flutter Animate for animations
 
+## 📝 Getting Started
+
+### Prerequisites
+
+- Flutter SDK (3.0+)
+- Dart SDK (3.0+)
+- A Supabase account and project
+
+### Setup
+
+1. Clone the repository
 ```bash
 git clone https://github.com/yourusername/weekend_gateway.git
+```
+
+2. Navigate to the project directory
+```bash
 cd weekend_gateway
 ```
 
-2. **Install dependencies**
-
+3. Install dependencies
 ```bash
 flutter pub get
 ```
 
-3. **Setup environment variables**
-
-Create a `.env` file in the root of the project with the following:
-
+4. Create a `.env` file in the root directory with your Supabase credentials:
 ```
-SUPABASE_URL=your_supabase_url_here
-SUPABASE_ANON_KEY=your_supabase_anon_key_here
+SUPABASE_URL=your_supabase_url
+SUPABASE_ANON_KEY=your_supabase_anon_key
 ```
 
-4. **Run the app**
-
+5. Run the app
 ```bash
 flutter run
 ```
 
-## Screenshots
+## 🔮 Upcoming Features
 
-(Screenshots will be added here)
+We're actively working on enhancing Weekend Gateway with the following features:
 
-## Folder Structure
+1. **Collaborative Planning** - Invite friends to collaborate on trip planning
+2. **Fork & Customize** - Fork and personalize anyone's itinerary
+3. **Chat Groups** - Dedicated group chats for specific trip plans
+4. **Trip Badges & Achievements** - Earn badges based on travel milestones
+5. **AI-Powered Itinerary Generation** - Create personalized itineraries using AI
+6. **Location Precision** - Add specific coordinates for trip locations
+7. **Enhanced Media Sharing** - Add photos to others' itineraries and reviews
 
-```
-lib/
-├── config/            # Configuration files
-├── core/              # Core utilities and helpers
-├── data/              # Data layer with repositories and models
-├── features/          # Feature-specific implementations
-└── presentation/      # UI layer
-    ├── commons/    # Reusable UI commons
-    ├── screens/       # App screens
-    └── theme/         # Theme configuration
-```
+## 🤝 Contributing
 
-## Contributing
+Contributions, issues, and feature requests are welcome! Feel free to check the [issues page](https://github.com/yourusername/weekend_gateway/issues).
 
-1. Fork the repository
-2. Create a new branch (`git checkout -b feature/amazing-feature`)
-3. Commit your changes (`git commit -m 'Add some amazing feature'`)
-4. Push to the branch (`git push origin feature/amazing-feature`)
+1. Fork the Project
+2. Create your Feature Branch (`git checkout -b feature/AmazingFeature`)
+3. Commit your Changes (`git commit -m 'Add some AmazingFeature'`)
+4. Push to the Branch (`git push origin feature/AmazingFeature`)
 5. Open a Pull Request
 
-## License
+## 📱 Screenshots
+
+| Home Screen | Trip Details | Search & Filters |
+| :---: | :---: | :---: |
+| ![Home](screenshots/home.png) | ![Trip Details](screenshots/details.png) | ![Search](screenshots/search.png) |
+
+## 📄 License
 
 This project is licensed under the MIT License - see the LICENSE file for details.
+
+## 📧 Contact
+
+Project Link: [https://github.com/yourusername/weekend_gateway](https://github.com/yourusername/weekend_gateway)
+
+---
+
+<p align="center">Made with ❤️ for weekend explorers everywhere</p>
