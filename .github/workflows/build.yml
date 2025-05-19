@@ -33,6 +33,21 @@ jobs:
           echo "SUPABASE_URL=${{ secrets.SUPABASE_URL }}" > .env
           echo "SUPABASE_ANON_KEY=${{ secrets.SUPABASE_ANON_KEY }}" >> .env
       
+      - name: Decode Android Keystore
+        id: decode_keystore
+        uses: timheuer/base64-to-file@v1.2
+        with:
+          fileName: 'android-keystore.jks'
+          fileDir: ${{ github.workspace }}
+          encodedString: ${{ secrets.KEYSTORE }}
+      
+      - name: Create key.properties file
+        run: |
+          echo "storePassword=${{ secrets.SIGNING_STORE_PASSWORD }}" > android/key.properties
+          echo "keyPassword=${{ secrets.SIGNING_KEY_PASSWORD }}" >> android/key.properties
+          echo "keyAlias=${{ secrets.SIGNING_KEY_ALIAS }}" >> android/key.properties
+          echo "storeFile=${{ github.workspace }}/android-keystore.jks" >> android/key.properties
+      
       - name: Build APK
         run: flutter build apk --release
 
@@ -69,7 +84,7 @@ jobs:
       
       - name: Get current date
         id: date
-        run: echo "::set-output name=date::$(date +'%Y-%m-%d')"
+        run: echo "date=$(date +'%Y-%m-%d')" >> $GITHUB_OUTPUT
       
       - name: Create Release
         id: create_release
@@ -90,6 +105,8 @@ jobs:
             ### What's New
             - Latest changes from the main branch
             - Bug fixes and improvements
+            - Full support for comments and upvotes
+            - Real data integration with Supabase
             
             ### Download
             - Android APK: app-release.apk

@@ -5,6 +5,16 @@ plugins {
     id("dev.flutter.flutter-gradle-plugin")
 }
 
+// Load key.properties file if it exists
+val keystorePropertiesFile = rootProject.file("key.properties")
+val keystoreProperties = org.gradle.internal.impldep.org.yaml.snakeyaml.Yaml()
+val useKeystore = keystorePropertiesFile.exists()
+val props = if (useKeystore) {
+    java.util.Properties().apply {
+        load(java.io.FileInputStream(keystorePropertiesFile))
+    }
+} else null
+
 android {
     namespace = "com.example.weekend_gateway"
     compileSdk = flutter.compileSdkVersion
@@ -30,11 +40,25 @@ android {
         versionName = flutter.versionName
     }
 
+    signingConfigs {
+        if (useKeystore) {
+            create("release") {
+                keyAlias = props!!.getProperty("keyAlias")
+                keyPassword = props.getProperty("keyPassword")
+                storeFile = file(props.getProperty("storeFile"))
+                storePassword = props.getProperty("storePassword")
+            }
+        }
+    }
+
     buildTypes {
         release {
-            // TODO: Add your own signing config for the release build.
-            // Signing with the debug keys for now, so `flutter run --release` works.
-            signingConfig = signingConfigs.getByName("debug")
+            // Use release signing config if key.properties exists, otherwise use debug signing
+            signingConfig = if (useKeystore) {
+                signingConfigs.getByName("release")
+            } else {
+                signingConfigs.getByName("debug")
+            }
         }
     }
 }
