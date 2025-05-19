@@ -100,7 +100,7 @@ Contributions, issues, and feature requests are welcome! Feel free to check the 
 
 | Home Screen | Trip Details | Search & Filters |
 | :---: | :---: | :---: |
-| ![Home](screenshots/home.png) | ![Trip Details](screenshots/details.png) | ![Search](screenshots/search.png) |
+| ![Create](assets\createItenary.png) | ![Trip Comments](assets\tripComments.png) | ![Search](assets\explore.png) |
 
 ## 📄 License
 
@@ -108,7 +108,7 @@ This project is licensed under the MIT License - see the LICENSE file for detail
 
 ## 📧 Contact
 
-Project Link: [https://github.com/yourusername/weekend_gateway](https://github.com/yourusername/weekend_gateway)
+Project Link: [https://github.com/Mr-Dark-debug/weekend_gateway](https://github.com/Mr-Dark-debug/weekend_gateway)
 
 ---
 
