@@ -6,15 +6,15 @@
 ![CI](https://github.com/yourusername/weekend_gateway/workflows/CI/badge.svg)
 
 <p align="center">
-  <img src="assets/images/logo.png" alt="Weekend Gateway Logo" width="180" />
+  <img src="assets/reference.png" alt="Weekend Gateway Logo" width="180" />
 </p>
 
 **Weekend Gateway** is an open-source, community-driven travel itinerary sharing application with a distinct neo-brutalist design. Plan your weekends and trips, share with the community, and discover amazing destinations curated by fellow travelers.
 
 <p align="center">
-  <img src="screenshots/screenshot1.png" width="180" />
-  <img src="screenshots/screenshot2.png" width="180" />
-  <img src="screenshots/screenshot3.png" width="180" />
+  <img src="assets/Homepage.png" width="180" />
+  <img src="assets/tripComments.png" width="180" />
+  <img src="assets/Profile.png" width="180" />
 </p>
 
 ## 🚀 Features
