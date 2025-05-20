@@ -178,28 +178,28 @@ class AppTheme {
           horizontal: 16, 
           vertical: 16,
         ),
-        border: OutlineInputBorder(
+        border: const OutlineInputBorder(
           borderRadius: BorderRadius.zero,
-          borderSide: const BorderSide(
+          borderSide: BorderSide(
             color: primaryForeground,
             width: borderWidth,
           ),
         ),
-        enabledBorder: OutlineInputBorder(
+        enabledBorder: const OutlineInputBorder(
           borderRadius: BorderRadius.zero,
-          borderSide: const BorderSide(
+          borderSide: BorderSide(
             color: primaryForeground,
             width: borderWidth,
           ),
         ),
-        focusedBorder: OutlineInputBorder(
+        focusedBorder: const OutlineInputBorder(
           borderRadius: BorderRadius.zero,
           borderSide: BorderSide(
             color: primaryAccent,
             width: borderWidth,
           ),
         ),
-        errorBorder: OutlineInputBorder(
+        errorBorder: const OutlineInputBorder(
           borderRadius: BorderRadius.zero,
           borderSide: BorderSide(
             color: Colors.red,
@@ -217,23 +217,23 @@ class AppTheme {
       ),
       
       // Card theme
-      cardTheme: CardTheme(
+      cardTheme: const CardTheme(
         color: primaryBackground,
         elevation: 0,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.zero,
-          side: const BorderSide(
+          side: BorderSide(
             color: primaryForeground,
             width: borderWidth,
           ),
         ),
-        margin: const EdgeInsets.all(8),
+        margin: EdgeInsets.all(8),
       ),
       
       // Checkbox theme
       checkboxTheme: CheckboxThemeData(
-        fillColor: MaterialStateProperty.resolveWith((states) {
-          if (states.contains(MaterialState.selected)) {
+        fillColor: WidgetStateProperty.resolveWith((states) {
+          if (states.contains(WidgetState.selected)) {
             return primaryAccent;
           }
           return null;
@@ -273,12 +273,12 @@ class AppTheme {
       ),
       
       // Dialog theme
-      dialogTheme: DialogTheme(
+      dialogTheme: const DialogTheme(
         backgroundColor: primaryBackground,
         elevation: 0,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.zero,
-          side: const BorderSide(
+          side: BorderSide(
             color: primaryForeground,
             width: borderWidth,
           ),

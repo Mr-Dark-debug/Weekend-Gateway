@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:weekend_gateway/config/app_routes.dart';
 import 'package:weekend_gateway/config/supabase_config.dart';
 import 'package:weekend_gateway/presentation/common/neo_button.dart';
 import 'package:weekend_gateway/presentation/common/neo_text_field.dart';
@@ -87,7 +86,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
                   // Title
-                  Text(
+                  const Text(
                     'RESET PASSWORD',
                     style: TextStyle(
                       fontFamily: 'RobotoMono',
@@ -194,7 +193,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
                   NeoButton(
                     onPressed: _isLoading ? null : _resetPassword,
                     isLoading: _isLoading,
-                    child: Text('SEND RESET LINK'),
+                    child: const Text('SEND RESET LINK'),
                   ),
                   
                   const SizedBox(height: 24),
@@ -203,7 +202,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
                   Center(
                     child: TextButton(
                       onPressed: () => Navigator.of(context).pop(),
-                      child: Text(
+                      child: const Text(
                         'Back to Login',
                         style: TextStyle(
                           fontFamily: 'RobotoMono',

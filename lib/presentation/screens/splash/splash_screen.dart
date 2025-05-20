@@ -23,13 +23,13 @@ class _SplashScreenState extends State<SplashScreen> {
   Future<void> _navigateToNextScreen() async {
     // Add a slight delay to show the splash screen
     await Future.delayed(const Duration(seconds: 2));
-    
+
     if (!mounted) return;
-    
+
     // Check if user has seen onboarding
     final prefs = await SharedPreferences.getInstance();
     final bool hasSeenOnboarding = prefs.getBool('hasSeenOnboarding') ?? false;
-    
+
     // Determine the next route
     String nextRoute;
     if (!hasSeenOnboarding) {
@@ -39,7 +39,7 @@ class _SplashScreenState extends State<SplashScreen> {
     } else {
       nextRoute = AppRoutes.login;
     }
-    
+
     // Navigate to the next screen
     if (!mounted) return;
     Navigator.of(context).pushReplacementNamed(nextRoute);
@@ -62,15 +62,15 @@ class _SplashScreenState extends State<SplashScreen> {
                   color: AppTheme.primaryForeground,
                   width: 4,
                 ),
-                boxShadow: [
+                boxShadow: const [
                   BoxShadow(
                     color: AppTheme.primaryForeground,
-                    offset: const Offset(6, 6),
+                    offset: Offset(6, 6),
                     blurRadius: 0,
                   ),
                 ],
               ),
-              child: Center(
+              child: const Center(
                 child: Text(
                   'WG',
                   style: TextStyle(
@@ -91,10 +91,10 @@ class _SplashScreenState extends State<SplashScreen> {
               duration: 400.ms,
               curve: Curves.easeOut,
             ),
-            
+
             const SizedBox(height: 32),
-            
-            Text(
+
+            const Text(
               'Weekend Gateway',
               style: TextStyle(
                 fontFamily: 'RobotoMono',
@@ -105,10 +105,10 @@ class _SplashScreenState extends State<SplashScreen> {
             )
             .animate()
             .fadeIn(delay: 400.ms, duration: 600.ms),
-            
+
             const SizedBox(height: 8),
-            
-            Text(
+
+            const Text(
               'Travel Together',
               style: TextStyle(
                 fontFamily: 'RobotoMono',
@@ -123,4 +123,4 @@ class _SplashScreenState extends State<SplashScreen> {
       ),
     );
   }
-} 
+}

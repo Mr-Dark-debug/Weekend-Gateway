@@ -1,6 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:weekend_gateway/config/supabase_config.dart';
+import 'package:weekend_gateway/models/trip_model.dart';
+import 'package:weekend_gateway/models/trip_day_model.dart';
+import 'package:weekend_gateway/models/trip_activity_model.dart';
+import 'package:weekend_gateway/models/trip_comment_model.dart';
+import 'package:weekend_gateway/models/user_model.dart';
+import 'package:weekend_gateway/services/trip_service.dart';
+import 'package:weekend_gateway/presentation/screens/profile/profile_screen.dart';
 import 'package:weekend_gateway/presentation/theme/app_theme.dart';
 import 'package:weekend_gateway/presentation/common/neo_card.dart';
 import 'package:weekend_gateway/presentation/common/neo_button.dart';
@@ -8,7 +15,7 @@ import 'package:weekend_gateway/presentation/common/neo_text_field.dart';
 
 class TripDetailScreen extends StatefulWidget {
   final String tripId;
-  
+
   const TripDetailScreen({Key? key, required this.tripId}) : super(key: key);
 
   @override
@@ -16,189 +23,99 @@ class TripDetailScreen extends StatefulWidget {
 }
 
 class _TripDetailScreenState extends State<TripDetailScreen> {
-  bool _isLoading = false;
-  late final Map<String, dynamic> _tripData;
+  bool _isLoading = true;
+  TripModel? _trip;
   bool _isSaved = false;
-  
+
+  final TripService _tripService = TripService();
   final TextEditingController _commentController = TextEditingController();
   bool _isPostingComment = false;
   int _upvotes = 0;
   int _downvotes = 0;
   String? _userVote;
-  
+
   @override
   void initState() {
     super.initState();
     _loadTripData();
   }
-  
+
   @override
   void dispose() {
     _commentController.dispose();
     super.dispose();
   }
-  
+
   Future<void> _loadTripData() async {
     setState(() {
       _isLoading = true;
     });
-    
-    await Future.delayed(const Duration(milliseconds: 800));
-    
-    _tripData = {
-      'id': widget.tripId,
-      'title': 'Weekend in Paris',
-      'location': 'Paris, France',
-      'author': 'Maria C.',
-      'authorAvatar': 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?q=80&w=1287',
-      'rating': 4.8,
-      'reviews': 24,
-      'days': 3,
-      'upvotes': 120,
-      'downvotes': 8,
-      'coverImage': 'https://images.unsplash.com/photo-1502602898657-3e91760cbb34?q=80&w=2073',
-      'description': 'A perfect 3-day itinerary to explore the best of Paris. From iconic landmarks to hidden gems, this guide will help you make the most of your weekend in the City of Light.',
-      'days_details': [
-        {
-          'day': 1,
-          'title': 'Classic Paris',
-          'activities': [
-            {
-              'time': '09:00',
-              'title': 'Eiffel Tower',
-              'description': 'Start your day with a visit to the iconic Eiffel Tower. Get there early to avoid crowds.',
-              'location': 'Champ de Mars, 5 Avenue Anatole France',
-            },
-            {
-              'time': '12:30',
-              'title': 'Lunch at Café de Flore',
-              'description': 'Enjoy a classic French lunch at this historic café.',
-              'location': '172 Bd Saint-Germain',
-            },
-            {
-              'time': '14:00',
-              'title': 'Louvre Museum',
-              'description': 'Spend your afternoon exploring the world\'s largest art museum.',
-              'location': 'Rue de Rivoli',
-            },
-            {
-              'time': '19:00',
-              'title': 'Seine River Cruise',
-              'description': 'End your first day with a relaxing cruise along the Seine River.',
-              'location': 'Pont de l\'Alma',
-            },
-          ],
-        },
-        {
-          'day': 2,
-          'title': 'Historic Paris',
-          'activities': [
-            {
-              'time': '10:00',
-              'title': 'Notre-Dame Cathedral',
-              'description': 'Visit the famous Gothic cathedral (view from outside during reconstruction).',
-              'location': '6 Parvis Notre-Dame - Pl. Jean-Paul II',
-            },
-            {
-              'time': '12:00',
-              'title': 'Lunch in Le Marais',
-              'description': 'Try some traditional French food in this historic district.',
-              'location': 'Le Marais district',
-            },
-            {
-              'time': '14:00',
-              'title': 'Musée d\'Orsay',
-              'description': 'Explore this museum housed in a former railway station.',
-              'location': '1 Rue de la Légion d\'Honneur',
-            },
-            {
-              'time': '18:00',
-              'title': 'Montmartre & Sacré-Cœur',
-              'description': 'End your day with a visit to the artistic neighborhood and basilica.',
-              'location': 'Montmartre',
-            },
-          ],
-        },
-        {
-          'day': 3,
-          'title': 'Hidden Gems',
-          'activities': [
-            {
-              'time': '09:30',
-              'title': 'Luxembourg Gardens',
-              'description': 'Start your day with a peaceful walk through these beautiful gardens.',
-              'location': '75006 Paris',
-            },
-            {
-              'time': '11:30',
-              'title': 'Saint-Germain-des-Prés',
-              'description': 'Explore this charming neighborhood known for its cafés and boutiques.',
-              'location': 'Saint-Germain-des-Prés',
-            },
-            {
-              'time': '13:00',
-              'title': 'Lunch at Marché des Enfants Rouges',
-              'description': 'Have lunch at Paris\'s oldest food market.',
-              'location': '39 Rue de Bretagne',
-            },
-            {
-              'time': '15:00',
-              'title': 'Centre Pompidou',
-              'description': 'Visit this modern art museum with its distinctive architecture.',
-              'location': 'Place Georges-Pompidou',
-            },
-          ],
-        },
-      ],
-      'comments': [
-        {
-          'id': 'comment1',
-          'user': 'Alex B.',
-          'avatar': 'https://images.unsplash.com/photo-1599566150163-29194dcaad36?q=80&w=687',
-          'text': 'I followed this itinerary last summer and it was perfect! The Seine River Cruise was definitely the highlight.',
-          'timestamp': '2023-08-15T14:30:00Z',
-          'likes': 15,
-        },
-        {
-          'id': 'comment2',
-          'user': 'Sarah K.',
-          'avatar': 'https://images.unsplash.com/photo-1580489944761-15a19d654956?q=80&w=1961',
-          'text': 'Great guide but I would suggest spending more time at the Louvre. Two hours is not enough to see even the highlights!',
-          'timestamp': '2023-09-03T09:15:00Z',
-          'likes': 8,
-        },
-        {
-          'id': 'comment3',
-          'user': 'Marcus J.',
-          'avatar': 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?q=80&w=1974',
-          'text': 'The lunch recommendation at Café de Flore was spot on. Expensive but worth it for the experience.',
-          'timestamp': '2023-10-22T18:45:00Z',
-          'likes': 4,
-        },
-      ]
-    };
-    
-    _upvotes = _tripData['upvotes'];
-    _downvotes = _tripData['downvotes'];
-    
-    setState(() {
-      _isLoading = false;
-    });
+
+    try {
+      // Load trip data from Supabase
+      final trip = await _tripService.getTripById(widget.tripId);
+
+      // Check if the current user has saved this trip
+      final currentUserId = SupabaseConfig.client.auth.currentUser?.id;
+      if (currentUserId != null) {
+        _isSaved = trip.isSavedByCurrentUser;
+      }
+
+      // Set upvotes and downvotes (placeholder for now)
+      _upvotes = 120;
+      _downvotes = 8;
+
+      setState(() {
+        _trip = trip;
+        _isLoading = false;
+      });
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Error loading trip: $e')),
+        );
+        setState(() {
+          _isLoading = false;
+        });
+      }
+    }
   }
-  
-  void _toggleSaved() {
-    setState(() {
-      _isSaved = !_isSaved;
-    });
-    
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(_isSaved ? 'Saved to your itineraries' : 'Removed from your itineraries'),
-        duration: const Duration(seconds: 2),
-      ),
-    );
+
+  Future<void> _toggleSaved() async {
+    if (_trip == null) return;
+
+    try {
+      final currentUserId = SupabaseConfig.client.auth.currentUser?.id;
+      if (currentUserId == null) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('You need to be logged in to save trips')),
+        );
+        return;
+      }
+
+      final result = await _tripService.toggleSaveTrip(_trip!.id, currentUserId);
+
+      setState(() {
+        _isSaved = result;
+      });
+
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(_isSaved ? 'Saved to your itineraries' : 'Removed from your itineraries'),
+            duration: const Duration(seconds: 2),
+          ),
+        );
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Error: $e')),
+        );
+      }
+    }
   }
-  
+
   void _handleVote(String vote) {
     if (_userVote == vote) {
       setState(() {
@@ -209,7 +126,7 @@ class _TripDetailScreenState extends State<TripDetailScreen> {
         }
         _userVote = null;
       });
-    } 
+    }
     else if (_userVote != null) {
       setState(() {
         if (vote == 'up') {
@@ -232,43 +149,68 @@ class _TripDetailScreenState extends State<TripDetailScreen> {
         _userVote = vote;
       });
     }
-    
+
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
-        content: Text(_userVote == null 
-          ? 'Vote removed' 
-          : _userVote == 'up' 
-            ? 'Upvoted itinerary' 
+        content: Text(_userVote == null
+          ? 'Vote removed'
+          : _userVote == 'up'
+            ? 'Upvoted itinerary'
             : 'Downvoted itinerary'),
         duration: const Duration(seconds: 1),
       ),
     );
   }
-  
+
   Future<void> _postComment() async {
+    if (_trip == null) return;
+
     final comment = _commentController.text.trim();
     if (comment.isEmpty) return;
-    
+
     setState(() {
       _isPostingComment = true;
     });
-    
-    await Future.delayed(const Duration(seconds: 1));
-    
-    final newComment = {
-      'id': 'comment${_tripData['comments'].length + 1}',
-      'user': SupabaseConfig.currentUser?.email?.split('@').first ?? 'Anonymous',
-      'avatar': 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?q=80&w=1780',
-      'text': comment,
-      'timestamp': DateTime.now().toIso8601String(),
-      'likes': 0,
-    };
-    
-    setState(() {
-      _tripData['comments'] = [newComment, ..._tripData['comments']];
-      _commentController.clear();
-      _isPostingComment = false;
-    });
+
+    try {
+      final currentUserId = SupabaseConfig.client.auth.currentUser?.id;
+      if (currentUserId == null) {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('You need to be logged in to comment')),
+          );
+        }
+        setState(() {
+          _isPostingComment = false;
+        });
+        return;
+      }
+
+      // Add comment to database
+      final newComment = await _tripService.addComment(
+        _trip!.id,
+        currentUserId,
+        comment,
+      );
+
+      // Update local trip model with new comment
+      setState(() {
+        _trip = _trip!.copyWith(
+          comments: [newComment, ..._trip!.comments],
+        );
+        _commentController.clear();
+        _isPostingComment = false;
+      });
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Error posting comment: $e')),
+        );
+        setState(() {
+          _isPostingComment = false;
+        });
+      }
+    }
   }
 
   @override
@@ -279,7 +221,7 @@ class _TripDetailScreenState extends State<TripDetailScreen> {
         appBar: AppBar(
           title: const Text('TRIP DETAILS'),
         ),
-        body: Center(
+        body: const Center(
           child: SizedBox(
             width: 60,
             height: 60,
@@ -291,7 +233,34 @@ class _TripDetailScreenState extends State<TripDetailScreen> {
         ),
       );
     }
-    
+
+    if (_trip == null) {
+      return Scaffold(
+        backgroundColor: AppTheme.primaryBackground,
+        appBar: AppBar(
+          title: const Text('TRIP DETAILS'),
+        ),
+        body: Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              const Icon(Icons.error_outline, size: 48),
+              const SizedBox(height: 16),
+              Text(
+                'Trip not found',
+                style: Theme.of(context).textTheme.headlineSmall,
+              ),
+              const SizedBox(height: 8),
+              ElevatedButton(
+                onPressed: () => Navigator.pop(context),
+                child: const Text('Go Back'),
+              ),
+            ],
+          ),
+        ),
+      );
+    }
+
     return Scaffold(
       backgroundColor: AppTheme.primaryBackground,
       body: CustomScrollView(
@@ -323,7 +292,7 @@ class _TripDetailScreenState extends State<TripDetailScreen> {
       ),
     );
   }
-  
+
   Widget _buildAppBar() {
     return SliverAppBar(
       expandedHeight: 200.0,
@@ -334,11 +303,17 @@ class _TripDetailScreenState extends State<TripDetailScreen> {
           fit: StackFit.expand,
           children: [
             Image.network(
-              _tripData['coverImage'],
+              _trip!.coverImageUrl ?? 'https://images.unsplash.com/photo-1502602898657-3e91760cbb34?q=80&w=2073',
               fit: BoxFit.cover,
+              errorBuilder: (context, error, stackTrace) => Container(
+                color: AppTheme.primaryBackground,
+                child: const Center(
+                  child: Icon(Icons.image_not_supported, size: 48),
+                ),
+              ),
             ),
             Container(
-              decoration: BoxDecoration(
+              decoration: const BoxDecoration(
                 border: Border(
                   bottom: BorderSide(
                     color: AppTheme.primaryForeground,
@@ -356,24 +331,27 @@ class _TripDetailScreenState extends State<TripDetailScreen> {
             _isSaved ? Icons.bookmark : Icons.bookmark_border,
             color: _isSaved ? AppTheme.secondaryAccent : null,
           ),
-          onPressed: _toggleSaved,
+          onPressed: () => _toggleSaved(),
         ),
         IconButton(
           icon: const Icon(Icons.share),
           onPressed: () {
             // Share functionality
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(content: Text('Sharing is not implemented yet')),
+            );
           },
         ),
       ],
     );
   }
-  
+
   Widget _buildTripHeader() {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          _tripData['title'],
+          _trip!.title,
           style: Theme.of(context).textTheme.displaySmall,
         ).animate().fade(duration: 300.ms).slideY(begin: 0.2, end: 0),
         const SizedBox(height: 8),
@@ -382,7 +360,7 @@ class _TripDetailScreenState extends State<TripDetailScreen> {
             const Icon(Icons.location_on, size: 16),
             const SizedBox(width: 4),
             Text(
-              _tripData['location'],
+              _trip!.location,
               style: Theme.of(context).textTheme.bodyLarge,
             ),
           ],
@@ -390,29 +368,58 @@ class _TripDetailScreenState extends State<TripDetailScreen> {
         const SizedBox(height: 16),
         Row(
           children: [
-            CircleAvatar(
-              radius: 16,
-              backgroundImage: NetworkImage(_tripData['authorAvatar']),
+            GestureDetector(
+              onTap: () {
+                if (_trip!.author != null) {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => ProfileScreen(userId: _trip!.author!.id),
+                    ),
+                  );
+                }
+              },
+              child: CircleAvatar(
+                radius: 16,
+                backgroundImage: _trip!.author?.avatarUrl != null
+                    ? NetworkImage(_trip!.author!.avatarUrl!)
+                    : null,
+                child: _trip!.author?.avatarUrl == null
+                    ? const Icon(Icons.person, size: 16)
+                    : null,
+              ),
             ),
             const SizedBox(width: 8),
-            Text(
-              'BY ${_tripData['author']}',
-              style: Theme.of(context).textTheme.bodyMedium,
+            GestureDetector(
+              onTap: () {
+                if (_trip!.author != null) {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => ProfileScreen(userId: _trip!.author!.id),
+                    ),
+                  );
+                }
+              },
+              child: Text(
+                'BY ${_trip!.author?.username ?? 'Unknown'}',
+                style: Theme.of(context).textTheme.bodyMedium,
+              ),
             ),
             const Spacer(),
-            Icon(
+            const Icon(
               Icons.star,
               color: AppTheme.secondaryAccent,
               size: 16,
             ),
             const SizedBox(width: 4),
             Text(
-              _tripData['rating'].toString(),
+              _trip!.avgRating.toStringAsFixed(1),
               style: Theme.of(context).textTheme.bodyMedium,
             ),
             const SizedBox(width: 8),
             Text(
-              '(${_tripData['reviews']})',
+              '(${_trip!.ratingCount})',
               style: Theme.of(context).textTheme.bodySmall,
             ),
           ],
@@ -428,14 +435,14 @@ class _TripDetailScreenState extends State<TripDetailScreen> {
             ),
           ),
           child: Text(
-            '${_tripData['days']} DAYS',
+            '${_trip!.days} DAYS',
             style: Theme.of(context).textTheme.labelLarge,
           ),
         ).animate().fade(duration: 300.ms, delay: 300.ms).slideY(begin: 0.2, end: 0),
       ],
     );
   }
-  
+
   Widget _buildDescription() {
     return Container(
       padding: const EdgeInsets.all(16),
@@ -454,14 +461,14 @@ class _TripDetailScreenState extends State<TripDetailScreen> {
           ),
           const SizedBox(height: 12),
           Text(
-            _tripData['description'],
+            _trip!.description ?? 'No description available.',
             style: Theme.of(context).textTheme.bodyMedium,
           ),
         ],
       ),
     ).animate().fade(duration: 300.ms, delay: 400.ms);
   }
-  
+
   Widget _buildDaysList() {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -471,27 +478,41 @@ class _TripDetailScreenState extends State<TripDetailScreen> {
           style: Theme.of(context).textTheme.titleLarge,
         ),
         const SizedBox(height: 16),
-        ...List.generate(_tripData['days_details'].length, (index) {
-          final day = _tripData['days_details'][index];
-          return _buildDayCard(day, index);
-        }),
+        if (_trip!.tripDays.isEmpty)
+          Container(
+            padding: const EdgeInsets.all(16),
+            decoration: BoxDecoration(
+              border: Border.all(
+                color: AppTheme.primaryForeground,
+                width: AppTheme.borderWidth,
+              ),
+            ),
+            child: const Center(
+              child: Text('No itinerary details available.'),
+            ),
+          )
+        else
+          ...List.generate(_trip!.tripDays.length, (index) {
+            final day = _trip!.tripDays[index];
+            return _buildDayCard(day, index);
+          }),
       ],
     ).animate().fade(duration: 300.ms, delay: 500.ms);
   }
-  
-  Widget _buildDayCard(Map<String, dynamic> day, int index) {
+
+  Widget _buildDayCard(TripDayModel day, int index) {
     return Padding(
       padding: const EdgeInsets.only(bottom: 24.0),
       child: NeoCard(
         variant: NeoCardVariant.header,
-        headerTitle: 'DAY ${day['day']}: ${day['title']}',
+        headerTitle: 'DAY ${day.dayNumber}: ${day.title}',
         child: ListView.separated(
           shrinkWrap: true,
           physics: const NeverScrollableScrollPhysics(),
-          itemCount: day['activities'].length,
+          itemCount: day.activities.length,
           separatorBuilder: (context, index) => const Divider(),
           itemBuilder: (context, activityIndex) {
-            final activity = day['activities'][activityIndex];
+            final activity = day.activities[activityIndex];
             return Padding(
               padding: const EdgeInsets.symmetric(vertical: 8.0),
               child: Column(
@@ -504,7 +525,7 @@ class _TripDetailScreenState extends State<TripDetailScreen> {
                         padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                         color: AppTheme.primaryAccent,
                         child: Text(
-                          activity['time'],
+                          activity.time ?? 'N/A',
                           style: Theme.of(context).textTheme.labelLarge?.copyWith(
                             color: Colors.white,
                           ),
@@ -516,27 +537,30 @@ class _TripDetailScreenState extends State<TripDetailScreen> {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Text(
-                              activity['title'],
+                              activity.title,
                               style: Theme.of(context).textTheme.titleLarge,
                             ),
                             const SizedBox(height: 4),
-                            Text(
-                              activity['description'],
-                              style: Theme.of(context).textTheme.bodyMedium,
-                            ),
-                            const SizedBox(height: 4),
-                            Row(
-                              children: [
-                                const Icon(Icons.location_on, size: 14),
-                                const SizedBox(width: 4),
-                                Expanded(
-                                  child: Text(
-                                    activity['location'],
-                                    style: Theme.of(context).textTheme.bodySmall,
+                            if (activity.description != null)
+                              Text(
+                                activity.description!,
+                                style: Theme.of(context).textTheme.bodyMedium,
+                              ),
+                            if (activity.description != null)
+                              const SizedBox(height: 4),
+                            if (activity.location != null)
+                              Row(
+                                children: [
+                                  const Icon(Icons.location_on, size: 14),
+                                  const SizedBox(width: 4),
+                                  Expanded(
+                                    child: Text(
+                                      activity.location!,
+                                      style: Theme.of(context).textTheme.bodySmall,
+                                    ),
                                   ),
-                                ),
-                              ],
-                            ),
+                                ],
+                              ),
                           ],
                         ),
                       ),
@@ -549,7 +573,7 @@ class _TripDetailScreenState extends State<TripDetailScreen> {
         ),
       ),
     ).animate().fade(
-      duration: 400.ms, 
+      duration: 400.ms,
       delay: (100 * index + 600).ms
     ).slideY(
       begin: 0.2,
@@ -557,7 +581,7 @@ class _TripDetailScreenState extends State<TripDetailScreen> {
       delay: (100 * index + 600).ms
     );
   }
-  
+
   Widget _buildActionButtons() {
     return Row(
       children: [
@@ -608,7 +632,7 @@ class _TripDetailScreenState extends State<TripDetailScreen> {
       ],
     ).animate().fade(duration: 300.ms, delay: 700.ms);
   }
-  
+
   Widget _buildVotingSection() {
     return Row(
       mainAxisAlignment: MainAxisAlignment.center,
@@ -631,7 +655,9 @@ class _TripDetailScreenState extends State<TripDetailScreen> {
       ],
     ).animate().fade(duration: 300.ms, delay: 400.ms);
   }
-  
+
+
+
   Widget _buildVoteButton({
     required IconData icon,
     required int count,
@@ -643,7 +669,7 @@ class _TripDetailScreenState extends State<TripDetailScreen> {
       children: [
         Container(
           decoration: BoxDecoration(
-            color: isSelected ? color.withOpacity(0.1) : Colors.transparent,
+            color: isSelected ? color.withValues(alpha: 0.1) : Colors.transparent,
             border: Border.all(
               color: isSelected ? color : AppTheme.primaryForeground,
               width: 2,
@@ -668,13 +694,13 @@ class _TripDetailScreenState extends State<TripDetailScreen> {
       ],
     );
   }
-  
+
   Widget _buildCommentsSection() {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          'COMMENTS (${_tripData['comments'].length})',
+          'COMMENTS (${_trip!.comments.length})',
           style: Theme.of(context).textTheme.titleLarge?.copyWith(
             fontFamily: 'RobotoMono',
             fontWeight: FontWeight.bold,
@@ -701,7 +727,7 @@ class _TripDetailScreenState extends State<TripDetailScreen> {
           ],
         ),
         const SizedBox(height: 24),
-        if (_tripData['comments'].isEmpty)
+        if (_trip!.comments.isEmpty)
           Padding(
             padding: const EdgeInsets.symmetric(vertical: 16.0),
             child: Text(
@@ -709,7 +735,7 @@ class _TripDetailScreenState extends State<TripDetailScreen> {
               style: TextStyle(
                 fontFamily: 'RobotoMono',
                 fontStyle: FontStyle.italic,
-                color: AppTheme.primaryForeground.withOpacity(0.7),
+                color: AppTheme.primaryForeground.withValues(alpha: 0.7),
               ),
             ),
           )
@@ -717,28 +743,28 @@ class _TripDetailScreenState extends State<TripDetailScreen> {
           ListView.separated(
             shrinkWrap: true,
             physics: const NeverScrollableScrollPhysics(),
-            itemCount: _tripData['comments'].length,
+            itemCount: _trip!.comments.length,
             separatorBuilder: (_, __) => const Divider(),
             itemBuilder: (context, index) {
-              final comment = _tripData['comments'][index];
+              final comment = _trip!.comments[index];
               return _buildCommentItem(comment);
             },
           ),
       ],
     ).animate().fade(duration: 300.ms, delay: 800.ms);
   }
-  
-  Widget _buildCommentItem(Map<String, dynamic> comment) {
-    final DateTime timestamp = DateTime.parse(comment['timestamp']);
+
+  Widget _buildCommentItem(TripCommentModel comment) {
+    final DateTime timestamp = comment.createdAt;
     final String formattedDate = '${timestamp.day}/${timestamp.month}/${timestamp.year}';
-    
+
     return Container(
       margin: const EdgeInsets.symmetric(vertical: 8),
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
         color: AppTheme.primaryBackground,
         border: Border.all(
-          color: AppTheme.primaryForeground.withOpacity(0.3),
+          color: AppTheme.primaryForeground.withValues(alpha: 0.3),
           width: 1,
         ),
       ),
@@ -747,16 +773,45 @@ class _TripDetailScreenState extends State<TripDetailScreen> {
         children: [
           Row(
             children: [
-              CircleAvatar(
-                radius: 16,
-                backgroundImage: NetworkImage(comment['avatar']),
+              GestureDetector(
+                onTap: () {
+                  if (comment.user != null) {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => ProfileScreen(userId: comment.user!.id),
+                      ),
+                    );
+                  }
+                },
+                child: CircleAvatar(
+                  radius: 16,
+                  backgroundImage: comment.user?.avatarUrl != null
+                      ? NetworkImage(comment.user!.avatarUrl!)
+                      : null,
+                  child: comment.user?.avatarUrl == null
+                      ? const Icon(Icons.person, size: 16)
+                      : null,
+                ),
               ),
               const SizedBox(width: 8),
-              Text(
-                comment['user'],
-                style: const TextStyle(
-                  fontFamily: 'RobotoMono',
-                  fontWeight: FontWeight.bold,
+              GestureDetector(
+                onTap: () {
+                  if (comment.user != null) {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => ProfileScreen(userId: comment.user!.id),
+                      ),
+                    );
+                  }
+                },
+                child: Text(
+                  comment.user?.username ?? 'Unknown',
+                  style: const TextStyle(
+                    fontFamily: 'RobotoMono',
+                    fontWeight: FontWeight.bold,
+                  ),
                 ),
               ),
               const Spacer(),
@@ -765,14 +820,14 @@ class _TripDetailScreenState extends State<TripDetailScreen> {
                 style: TextStyle(
                   fontFamily: 'RobotoMono',
                   fontSize: 12,
-                  color: AppTheme.primaryForeground.withOpacity(0.7),
+                  color: AppTheme.primaryForeground.withValues(alpha: 0.7),
                 ),
               ),
             ],
           ),
           const SizedBox(height: 12),
           Text(
-            comment['text'],
+            comment.content,
             style: const TextStyle(fontFamily: 'RobotoMono'),
           ),
           const SizedBox(height: 8),
@@ -782,19 +837,19 @@ class _TripDetailScreenState extends State<TripDetailScreen> {
               Icon(
                 Icons.thumb_up_outlined,
                 size: 14,
-                color: AppTheme.primaryForeground.withOpacity(0.7),
+                color: AppTheme.primaryForeground.withValues(alpha: 0.7),
               ),
               const SizedBox(width: 4),
               Text(
-                comment['likes'].toString(),
+                '0', // Placeholder for likes count
                 style: TextStyle(
                   fontFamily: 'RobotoMono',
                   fontSize: 12,
-                  color: AppTheme.primaryForeground.withOpacity(0.7),
+                  color: AppTheme.primaryForeground.withValues(alpha: 0.7),
                 ),
               ),
               const SizedBox(width: 16),
-              Text(
+              const Text(
                 'REPLY',
                 style: TextStyle(
                   fontFamily: 'RobotoMono',
@@ -809,4 +864,4 @@ class _TripDetailScreenState extends State<TripDetailScreen> {
       ),
     );
   }
-} 
+}

@@ -1,4 +1,5 @@
 import 'package:logger/logger.dart';
+import 'dart:math' as math;
 
 class LocationService {
   final Logger _logger = Logger();
@@ -55,10 +56,10 @@ class LocationService {
     final double a = 
         _haversine(latDiff) + 
         _haversine(longDiff) * 
-        (startLatRad).cos() * 
-        (endLatRad).cos();
+        math.cos(startLatRad) * 
+        math.cos(endLatRad);
     
-    final double c = 2 * (a).sqrt().asin();
+    final double c = 2 * math.asin(math.sqrt(a));
     
     // Calculate the distance
     return earthRadius * c;
@@ -66,12 +67,12 @@ class LocationService {
   
   // Helper method to convert degrees to radians
   double _degreesToRadians(double degrees) {
-    return degrees * (3.14159265359 / 180);
+    return degrees * (math.pi / 180);
   }
   
   // Helper method for haversine formula
   double _haversine(double value) {
-    return (value / 2).sin() * (value / 2).sin();
+    return math.sin(value / 2) * math.sin(value / 2);
   }
   
   // Check if a location is nearby (within specified radius)

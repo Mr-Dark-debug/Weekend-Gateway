@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:weekend_gateway/config/app_routes.dart';
 import 'package:weekend_gateway/config/supabase_config.dart';
 import 'package:weekend_gateway/presentation/common/neo_button.dart';
 import 'package:weekend_gateway/presentation/common/neo_text_field.dart';
@@ -100,7 +99,7 @@ class _SignupScreenState extends State<SignupScreen> {
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
                   // Title
-                  Text(
+                  const Text(
                     'CREATE ACCOUNT',
                     style: TextStyle(
                       fontFamily: 'RobotoMono',
@@ -197,7 +196,7 @@ class _SignupScreenState extends State<SignupScreen> {
                   NeoButton(
                     onPressed: _isLoading ? null : _signup,
                     isLoading: _isLoading,
-                    child: Text('SIGN UP'),
+                    child: const Text('SIGN UP'),
                   ),
                   
                   const SizedBox(height: 24),
@@ -214,7 +213,7 @@ class _SignupScreenState extends State<SignupScreen> {
                       ),
                       TextButton(
                         onPressed: () => Navigator.of(context).pop(),
-                        child: Text(
+                        child: const Text(
                           'Log in',
                           style: TextStyle(
                             fontFamily: 'RobotoMono',

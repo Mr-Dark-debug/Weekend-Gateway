@@ -156,16 +156,17 @@ class _HomeScreenState extends State<HomeScreen> {
         ),
       ];
     }
-    return null; 
+    return null;
   }
 }
 
 class _HomeContent extends StatelessWidget {
   const _HomeContent({Key? key}) : super(key: key);
 
+  // Using valid UUID format for trip IDs
   static final List<Map<String, dynamic>> _itineraries = [
     {
-      'id': 'paris123',
+      'id': '123e4567-e89b-12d3-a456-426614174000',
       'title': 'Weekend in Paris',
       'author': 'Maria C.',
       'location': 'Paris, France',
@@ -176,7 +177,7 @@ class _HomeContent extends StatelessWidget {
       'image': 'https://images.unsplash.com/photo-1502602898657-3e91760cbb34?q=80&w=2073',
     },
     {
-      'id': 'barca456',
+      'id': '123e4567-e89b-12d3-a456-426614174001',
       'title': 'Barcelona Food Tour',
       'author': 'Carlos M.',
       'location': 'Barcelona, Spain',
@@ -187,7 +188,7 @@ class _HomeContent extends StatelessWidget {
       'image': 'https://images.unsplash.com/photo-1583422409516-2895a77efded?q=80&w=2070',
     },
     {
-      'id': 'tokyo789',
+      'id': '123e4567-e89b-12d3-a456-426614174002',
       'title': 'Tokyo Adventure',
       'author': 'Kenji T.',
       'location': 'Tokyo, Japan',
@@ -219,7 +220,7 @@ class _HomeContent extends StatelessWidget {
 
   Widget _buildWelcomeSection(BuildContext context) {
     final userName = SupabaseConfig.currentUser?.email?.split('@').first ?? 'Traveler';
-    
+
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
@@ -360,7 +361,7 @@ class _HomeContent extends StatelessWidget {
                                 ),
                                 Row(
                                   children: [
-                                    Icon(Icons.star, 
+                                    Icon(Icons.star,
                                       color: AppTheme.secondaryAccent,
                                       size: 16,
                                     ),
@@ -385,10 +386,10 @@ class _HomeContent extends StatelessWidget {
                   ),
                 ),
               ).animate().fade(
-                duration: 400.ms, 
+                duration: 400.ms,
                 delay: (100 * index).ms
               ).slideX(
-                begin: 0.2, 
+                begin: 0.2,
                 end: 0,
                 delay: (100 * index).ms
               );
@@ -407,7 +408,7 @@ class _HomeContent extends StatelessWidget {
       {'name': 'Bali', 'count': 12},
       {'name': 'Paris', 'count': 10},
     ];
-    
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -478,4 +479,4 @@ class _HomeContent extends StatelessWidget {
       ),
     );
   }
-} 
+}

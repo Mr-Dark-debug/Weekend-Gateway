@@ -1,3 +1,6 @@
+import java.util.Properties
+import java.io.FileInputStream
+
 plugins {
     id("com.android.application")
     id("kotlin-android")
@@ -7,26 +10,25 @@ plugins {
 
 // Load key.properties file if it exists
 val keystorePropertiesFile = rootProject.file("key.properties")
-val keystoreProperties = org.gradle.internal.impldep.org.yaml.snakeyaml.Yaml()
 val useKeystore = keystorePropertiesFile.exists()
 val props = if (useKeystore) {
-    java.util.Properties().apply {
-        load(java.io.FileInputStream(keystorePropertiesFile))
+    Properties().apply {
+        load(FileInputStream(keystorePropertiesFile))
     }
 } else null
 
 android {
     namespace = "com.example.weekend_gateway"
     compileSdk = flutter.compileSdkVersion
-    ndkVersion = flutter.ndkVersion
+    ndkVersion = "27.0.12077973" // Updated to match plugin requirements
 
     compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_11
-        targetCompatibility = JavaVersion.VERSION_11
+        sourceCompatibility = JavaVersion.VERSION_1_8
+        targetCompatibility = JavaVersion.VERSION_1_8
     }
 
     kotlinOptions {
-        jvmTarget = JavaVersion.VERSION_11.toString()
+        jvmTarget = JavaVersion.VERSION_1_8.toString()
     }
 
     defaultConfig {

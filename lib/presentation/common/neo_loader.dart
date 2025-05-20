@@ -43,7 +43,7 @@ class NeoLoader extends StatelessWidget {
             const SizedBox(height: 16),
             Text(
               message!,
-              style: TextStyle(
+              style: const TextStyle(
                 fontFamily: 'RobotoMono',
                 color: AppTheme.primaryForeground,
                 fontWeight: FontWeight.bold,

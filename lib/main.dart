@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
-import 'package:provider/provider.dart';
 import 'package:weekend_gateway/config/app_routes.dart';
 import 'package:weekend_gateway/config/supabase_config.dart';
 import 'package:weekend_gateway/presentation/theme/app_theme.dart';

@@ -260,7 +260,7 @@ class _SearchScreenState extends State<SearchScreen> {
             _buildFilters(),
             Expanded(
               child: _isLoading 
-                ? Center(
+                ? const Center(
                     child: SizedBox(
                       width: 50,
                       height: 50,
@@ -283,7 +283,7 @@ class _SearchScreenState extends State<SearchScreen> {
   Widget _buildSearchBar() {
     return Container(
       padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
+      decoration: const BoxDecoration(
         color: AppTheme.primaryBackground,
         border: Border(
           bottom: BorderSide(
@@ -325,7 +325,7 @@ class _SearchScreenState extends State<SearchScreen> {
   Widget _buildFilters() {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-      decoration: BoxDecoration(
+      decoration: const BoxDecoration(
         color: AppTheme.primaryBackground,
         border: Border(
           bottom: BorderSide(
@@ -583,7 +583,7 @@ class _SearchScreenState extends State<SearchScreen> {
               child: Row(
                 children: [
                   _isLoadingLocation
-                    ? SizedBox(
+                    ? const SizedBox(
                         width: 16,
                         height: 16,
                         child: CircularProgressIndicator(
@@ -663,7 +663,7 @@ class _SearchScreenState extends State<SearchScreen> {
                   width: 120,
                   height: 120,
                   decoration: BoxDecoration(
-                    border: Border(
+                    border: const Border(
                       right: BorderSide(
                         color: AppTheme.primaryForeground,
                         width: AppTheme.borderWidth,
@@ -721,7 +721,7 @@ class _SearchScreenState extends State<SearchScreen> {
                             ),
                             Row(
                               children: [
-                                Icon(
+                                const Icon(
                                   Icons.star,
                                   color: AppTheme.secondaryAccent,
                                   size: 16,
@@ -742,7 +742,7 @@ class _SearchScreenState extends State<SearchScreen> {
                             // Display price
                             Row(
                               children: [
-                                Icon(
+                                const Icon(
                                   Icons.payments_outlined,
                                   size: 14,
                                   color: AppTheme.primaryForeground,
@@ -758,7 +758,7 @@ class _SearchScreenState extends State<SearchScreen> {
                             if ((result['distance'] as int) < 1000)
                               Row(
                                 children: [
-                                  Icon(
+                                  const Icon(
                                     Icons.near_me,
                                     size: 14,
                                     color: AppTheme.primaryAccent,

@@ -1,5 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
+import 'package:image_picker/image_picker.dart';
+import 'dart:io';
+import 'package:weekend_gateway/config/supabase_config.dart';
+import 'package:weekend_gateway/models/trip_model.dart';
+import 'package:weekend_gateway/services/trip_service.dart';
 import 'package:weekend_gateway/presentation/common/neo_button.dart';
 import 'package:weekend_gateway/presentation/common/neo_card.dart';
 import 'package:weekend_gateway/presentation/theme/app_theme.dart';
@@ -17,11 +22,30 @@ class _CreateTripScreenState extends State<CreateTripScreen> {
   final _locationController = TextEditingController();
   final _descriptionController = TextEditingController();
   int _selectedDays = 1;
+  int _priceLevel = 2; // 1: Budget, 2: Moderate, 3: Luxury
   bool _isPublic = true;
   bool _isLoading = false;
-  
+
+  final TripService _tripService = TripService();
+  final ImagePicker _imagePicker = ImagePicker();
+  File? _coverImage;
+  File? _thumbnailImage;
+
   final List<Map<String, dynamic>> _activities = [];
-  
+
+  // Organize activities by day
+  Map<int, List<Map<String, dynamic>>> get _activitiesByDay {
+    final result = <int, List<Map<String, dynamic>>>{};
+    for (final activity in _activities) {
+      final day = activity['day'] as int;
+      if (!result.containsKey(day)) {
+        result[day] = [];
+      }
+      result[day]!.add(activity);
+    }
+    return result;
+  }
+
   @override
   void dispose() {
     _titleController.dispose();
@@ -29,7 +53,7 @@ class _CreateTripScreenState extends State<CreateTripScreen> {
     _descriptionController.dispose();
     super.dispose();
   }
-  
+
   void _addActivity() {
     setState(() {
       _activities.add({
@@ -41,39 +65,144 @@ class _CreateTripScreenState extends State<CreateTripScreen> {
       });
     });
   }
-  
+
   void _removeActivity(int index) {
     setState(() {
       _activities.removeAt(index);
     });
   }
-  
+
   void _updateActivity(int index, String field, dynamic value) {
     setState(() {
       _activities[index][field] = value;
     });
   }
-  
+
+  Future<void> _pickImage(bool isCover) async {
+    try {
+      final pickedFile = await _imagePicker.pickImage(
+        source: ImageSource.gallery,
+        imageQuality: 80,
+      );
+
+      if (pickedFile != null) {
+        setState(() {
+          if (isCover) {
+            _coverImage = File(pickedFile.path);
+          } else {
+            _thumbnailImage = File(pickedFile.path);
+          }
+        });
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Error picking image: $e')),
+        );
+      }
+    }
+  }
+
   Future<void> _createTrip() async {
     if (_formKey.currentState?.validate() ?? false) {
+      // Validate at least one activity per day
+      final activitiesByDay = _activitiesByDay;
+      for (int day = 1; day <= _selectedDays; day++) {
+        if (!activitiesByDay.containsKey(day) || activitiesByDay[day]!.isEmpty) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('Please add at least one activity for Day $day')),
+          );
+          return;
+        }
+      }
+
       setState(() {
         _isLoading = true;
       });
-      
-      // Simulate API call
-      await Future.delayed(const Duration(seconds: 2));
-      
-      if (mounted) {
-        setState(() {
-          _isLoading = false;
-        });
-        
-        // Show success message and navigate back
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Itinerary created successfully!')),
+
+      try {
+        final userId = SupabaseConfig.client.auth.currentUser?.id;
+        if (userId == null) {
+          throw Exception('User not authenticated');
+        }
+
+        // Upload images if selected
+        String? coverImageUrl;
+        String? thumbnailUrl;
+
+        if (_coverImage != null) {
+          coverImageUrl = await _tripService.uploadTripImage(
+            _coverImage!,
+            _coverImage!.path.split('.').last,
+          );
+        }
+
+        if (_thumbnailImage != null) {
+          thumbnailUrl = await _tripService.uploadTripImage(
+            _thumbnailImage!,
+            _thumbnailImage!.path.split('.').last,
+          );
+        } else if (coverImageUrl != null) {
+          // Use cover image as thumbnail if no thumbnail is selected
+          thumbnailUrl = coverImageUrl;
+        }
+
+        // Prepare days data
+        final List<Map<String, dynamic>> days = [];
+        for (int day = 1; day <= _selectedDays; day++) {
+          final dayActivities = activitiesByDay[day] ?? [];
+          days.add({
+            'title': 'Day $day',
+            'activities': dayActivities.map((activity) => {
+              'title': activity['title'],
+              'description': activity['description'],
+              'location': activity['location'],
+              'time': activity['time'],
+            }).toList(),
+          });
+        }
+
+        // Create trip
+        await _tripService.createTripManual(
+          TripModel(
+            id: '', // Will be generated by Supabase
+            title: _titleController.text,
+            description: _descriptionController.text,
+            location: _locationController.text,
+            days: _selectedDays,
+            priceLevel: _priceLevel,
+            coverImageUrl: coverImageUrl,
+            thumbnailUrl: thumbnailUrl,
+            isPublic: _isPublic,
+            userId: userId,
+            createdAt: DateTime.now(),
+            updatedAt: DateTime.now(),
+          ),
+          days,
         );
-        
-        Navigator.pop(context);
+
+        if (mounted) {
+          setState(() {
+            _isLoading = false;
+          });
+
+          // Show success message and navigate back
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('Itinerary created successfully!')),
+          );
+
+          Navigator.pop(context);
+        }
+      } catch (e) {
+        if (mounted) {
+          setState(() {
+            _isLoading = false;
+          });
+
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('Error creating itinerary: $e')),
+          );
+        }
       }
     }
   }
@@ -107,7 +236,7 @@ class _CreateTripScreenState extends State<CreateTripScreen> {
       ),
     );
   }
-  
+
   Widget _buildBasicInfo() {
     return NeoCard(
       child: Column(
@@ -161,11 +290,90 @@ class _CreateTripScreenState extends State<CreateTripScreen> {
               return null;
             },
           ),
+          const SizedBox(height: 16),
+          Text(
+            'IMAGES',
+            style: Theme.of(context).textTheme.titleMedium,
+          ),
+          const SizedBox(height: 8),
+          Row(
+            children: [
+              Expanded(
+                child: GestureDetector(
+                  onTap: () => _pickImage(true),
+                  child: Container(
+                    height: 120,
+                    decoration: BoxDecoration(
+                      color: AppTheme.primaryBackground,
+                      border: Border.all(
+                        color: AppTheme.primaryForeground,
+                        width: AppTheme.borderWidth,
+                      ),
+                      image: _coverImage != null
+                          ? DecorationImage(
+                              image: FileImage(_coverImage!),
+                              fit: BoxFit.cover,
+                            )
+                          : null,
+                    ),
+                    child: _coverImage == null
+                        ? Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              const Icon(Icons.add_photo_alternate, size: 32),
+                              const SizedBox(height: 8),
+                              Text(
+                                'COVER IMAGE',
+                                style: Theme.of(context).textTheme.labelMedium,
+                              ),
+                            ],
+                          )
+                        : null,
+                  ),
+                ),
+              ),
+              const SizedBox(width: 16),
+              Expanded(
+                child: GestureDetector(
+                  onTap: () => _pickImage(false),
+                  child: Container(
+                    height: 120,
+                    decoration: BoxDecoration(
+                      color: AppTheme.primaryBackground,
+                      border: Border.all(
+                        color: AppTheme.primaryForeground,
+                        width: AppTheme.borderWidth,
+                      ),
+                      image: _thumbnailImage != null
+                          ? DecorationImage(
+                              image: FileImage(_thumbnailImage!),
+                              fit: BoxFit.cover,
+                            )
+                          : null,
+                    ),
+                    child: _thumbnailImage == null
+                        ? Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              const Icon(Icons.add_photo_alternate, size: 32),
+                              const SizedBox(height: 8),
+                              Text(
+                                'THUMBNAIL',
+                                style: Theme.of(context).textTheme.labelMedium,
+                              ),
+                            ],
+                          )
+                        : null,
+                  ),
+                ),
+              ),
+            ],
+          ),
         ],
       ),
     ).animate().fade(duration: 300.ms).slideY(begin: 0.2, end: 0);
   }
-  
+
   Widget _buildDaySelection() {
     return NeoCard(
       child: Column(
@@ -182,7 +390,7 @@ class _CreateTripScreenState extends State<CreateTripScreen> {
             children: List.generate(7, (index) {
               final day = index + 1;
               final isSelected = _selectedDays == day;
-              
+
               return GestureDetector(
                 onTap: () {
                   setState(() {
@@ -213,7 +421,7 @@ class _CreateTripScreenState extends State<CreateTripScreen> {
       ),
     ).animate().fade(duration: 300.ms, delay: 100.ms).slideY(begin: 0.2, end: 0);
   }
-  
+
   Widget _buildActivities() {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -277,10 +485,10 @@ class _CreateTripScreenState extends State<CreateTripScreen> {
       ],
     ).animate().fade(duration: 300.ms, delay: 200.ms).slideY(begin: 0.2, end: 0);
   }
-  
+
   Widget _buildActivityCard(int index) {
     final activity = _activities[index];
-    
+
     return Padding(
       padding: const EdgeInsets.only(bottom: 16.0),
       child: NeoCard(
@@ -372,21 +580,138 @@ class _CreateTripScreenState extends State<CreateTripScreen> {
         ),
       ),
     ).animate().fade(
-      duration: 300.ms, 
+      duration: 300.ms,
       delay: (100 * index + 300).ms
     );
   }
-  
+
   Widget _buildPrivacySettings() {
     return NeoCard(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            'PRIVACY SETTINGS',
+            'SETTINGS',
             style: Theme.of(context).textTheme.titleLarge,
           ),
           const SizedBox(height: 16),
+          Text(
+            'PRICE LEVEL',
+            style: Theme.of(context).textTheme.titleMedium,
+          ),
+          const SizedBox(height: 8),
+          Row(
+            children: [
+              Expanded(
+                child: GestureDetector(
+                  onTap: () {
+                    setState(() {
+                      _priceLevel = 1;
+                    });
+                  },
+                  child: Container(
+                    padding: const EdgeInsets.all(16),
+                    decoration: BoxDecoration(
+                      color: _priceLevel == 1 ? AppTheme.secondaryAccent : AppTheme.primaryBackground,
+                      border: Border.all(
+                        color: AppTheme.primaryForeground,
+                        width: AppTheme.borderWidth,
+                      ),
+                    ),
+                    child: Column(
+                      children: [
+                        const Icon(Icons.attach_money),
+                        const SizedBox(height: 8),
+                        Text(
+                          'BUDGET',
+                          style: Theme.of(context).textTheme.labelLarge,
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+              const SizedBox(width: 8),
+              Expanded(
+                child: GestureDetector(
+                  onTap: () {
+                    setState(() {
+                      _priceLevel = 2;
+                    });
+                  },
+                  child: Container(
+                    padding: const EdgeInsets.all(16),
+                    decoration: BoxDecoration(
+                      color: _priceLevel == 2 ? AppTheme.secondaryAccent : AppTheme.primaryBackground,
+                      border: Border.all(
+                        color: AppTheme.primaryForeground,
+                        width: AppTheme.borderWidth,
+                      ),
+                    ),
+                    child: Column(
+                      children: [
+                        const Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Icon(Icons.attach_money),
+                            Icon(Icons.attach_money),
+                          ],
+                        ),
+                        const SizedBox(height: 8),
+                        Text(
+                          'MODERATE',
+                          style: Theme.of(context).textTheme.labelLarge,
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+              const SizedBox(width: 8),
+              Expanded(
+                child: GestureDetector(
+                  onTap: () {
+                    setState(() {
+                      _priceLevel = 3;
+                    });
+                  },
+                  child: Container(
+                    padding: const EdgeInsets.all(16),
+                    decoration: BoxDecoration(
+                      color: _priceLevel == 3 ? AppTheme.secondaryAccent : AppTheme.primaryBackground,
+                      border: Border.all(
+                        color: AppTheme.primaryForeground,
+                        width: AppTheme.borderWidth,
+                      ),
+                    ),
+                    child: Column(
+                      children: [
+                        const Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Icon(Icons.attach_money),
+                            Icon(Icons.attach_money),
+                            Icon(Icons.attach_money),
+                          ],
+                        ),
+                        const SizedBox(height: 8),
+                        Text(
+                          'LUXURY',
+                          style: Theme.of(context).textTheme.labelLarge,
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 24),
+          Text(
+            'PRIVACY',
+            style: Theme.of(context).textTheme.titleMedium,
+          ),
+          const SizedBox(height: 8),
           Row(
             children: [
               Expanded(
@@ -466,7 +791,7 @@ class _CreateTripScreenState extends State<CreateTripScreen> {
       ),
     ).animate().fade(duration: 300.ms, delay: 300.ms).slideY(begin: 0.2, end: 0);
   }
-  
+
   Widget _buildSubmitButton() {
     return NeoButton(
       onPressed: _isLoading ? null : () => _createTrip(),
@@ -480,4 +805,4 @@ class _CreateTripScreenState extends State<CreateTripScreen> {
       ),
     ).animate().fade(duration: 300.ms, delay: 400.ms).slideY(begin: 0.2, end: 0);
   }
-} 
+}
