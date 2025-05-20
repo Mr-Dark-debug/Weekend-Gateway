@@ -210,12 +210,58 @@ class _HomeContent extends StatelessWidget {
           const SizedBox(height: 24),
           _buildFeaturedItineraries(context),
           const SizedBox(height: 24),
+          _buildAIGeneratorEntry(context), // Added AI Generator Entry Point
+          const SizedBox(height: 24),
           _buildPopularDestinations(context),
           const SizedBox(height: 24),
           _buildCreateItineraryButton(context),
         ],
       ),
     );
+  }
+
+  Widget _buildAIGeneratorEntry(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          'PLAN WITH AI',
+          style: Theme.of(context).textTheme.titleLarge?.copyWith(fontFamily: 'RobotoMono', fontWeight: FontWeight.bold),
+        ),
+        const SizedBox(height: 16),
+        NeoCard(
+          onTap: () {
+            Navigator.pushNamed(context, AppRoutes.aiItineraryGenerator);
+          },
+          child: Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        'AI Itinerary Planner',
+                        style: Theme.of(context).textTheme.titleMedium?.copyWith(fontFamily: 'RobotoMono', fontWeight: FontWeight.bold),
+                      ),
+                      const SizedBox(height: 4),
+                      Text(
+                        'Let our AI craft your perfect trip in seconds!',
+                         style: Theme.of(context).textTheme.bodyMedium?.copyWith(fontFamily: 'RobotoMono'),
+                      ),
+                    ],
+                  ),
+                ),
+                const SizedBox(width: 16),
+                const Icon(Icons.auto_awesome, color: AppTheme.primaryAccent, size: 32),
+              ],
+            ),
+          ),
+        ),
+      ],
+    ).animate().fade(duration: 300.ms, delay: 200.ms).slideY(begin: 0.2, end: 0);
   }
 
   Widget _buildWelcomeSection(BuildContext context) {

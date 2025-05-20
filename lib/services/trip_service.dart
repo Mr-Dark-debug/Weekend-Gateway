@@ -751,4 +751,133 @@ class TripService {
       isSavedByCurrentUser: false,
     );
   }
+
+  // Get trips where the user is a collaborator (not the primary owner)
+  Future<List<TripModel>> getCollaborativeTrips(String userId) async {
+    try {
+      final response = await _supabase
+          .from('trip_collaborators')
+          .select('''
+            role,
+            trips (
+              *,
+              users:user_id (id, username, avatar_url),
+              trip_ratings (rating),
+              trip_likes (id)
+            )
+          ''')
+          .eq('user_id', userId)
+          .neq('role', 'owner'); // Exclude trips where the user's role is 'owner' in collaborators table
+                                 // This might need adjustment if 'owner' in collaborators means something different than trips.user_id
+
+      final List<dynamic> collaborativeLinks = response;
+      
+      List<TripModel> trips = [];
+      for (var item in collaborativeLinks) {
+        final tripData = item['trips'];
+        if (tripData == null) continue;
+
+        // Ensure the current user is not also the primary owner of the trip
+        if (tripData['user_id'] == userId) continue;
+
+        final userData = tripData['users'] as Map<String, dynamic>;
+        final author = UserModel.fromJson({
+          ...userData,
+          'created_at': DateTime.now().toIso8601String(), // Mocked, ideally from DB
+          'updated_at': DateTime.now().toIso8601String(), // Mocked
+        });
+
+        // Additional checks for isLikedByCurrentUser and isSavedByCurrentUser could be added here if necessary
+        // For simplicity, they are defaulted to false for collaborative trips unless explicitly fetched.
+        trips.add(TripModel.fromJson(
+          tripData,
+          author: author,
+          isLikedByCurrentUser: false, // Default or fetch if needed
+          isSavedByCurrentUser: false, // Default or fetch if needed
+        ));
+      }
+      return trips;
+    } catch (e, stackTrace) {
+      _logger.e('Error fetching collaborative trips for user $userId', e, stackTrace);
+      return [];
+    }
+  }
+
+  // Get trips forked by the user
+  Future<List<TripModel>> getForkedTrips(String userId) async {
+    try {
+      final response = await _supabase
+          .from('trips')
+          .select('''
+            *,
+            users:user_id (id, username, avatar_url),
+            trip_ratings (rating),
+            trip_likes (id)
+          ''')
+          .eq('user_id', userId)
+          .ilike('title', 'Fork of %') // Filter for titles starting with "Fork of "
+          .order('created_at', ascending: false);
+
+      final List<dynamic> tripsList = response;
+      return tripsList.map((trip) {
+        final userData = trip['users'] as Map<String, dynamic>;
+        final author = UserModel.fromJson({
+          ...userData,
+          'created_at': DateTime.now().toIso8601String(), 
+          'updated_at': DateTime.now().toIso8601String(), 
+        });
+        // For forked trips, isLikedByCurrentUser and isSavedByCurrentUser would typically be false by default
+        // or would need separate checks if a user can like/save their own forked trips.
+        return TripModel.fromJson(
+          trip, 
+          author: author,
+          isLikedByCurrentUser: false, // Defaulting, adjust if needed
+          isSavedByCurrentUser: false, // Defaulting, adjust if needed
+        );
+      }).toList();
+    } catch (e, stackTrace) {
+      _logger.e('Error fetching forked trips for user $userId', e, stackTrace);
+      return [];
+    }
+  }
+
+  // Get recent public trips (can be used for "Featured")
+  Future<List<TripModel>> getPublicTrips({int limit = 10, String sortBy = 'created_at'}) async {
+    try {
+      final response = await _supabase
+          .from('trips')
+          .select('''
+            *,
+            users:user_id (id, username, avatar_url),
+            trip_ratings (rating),
+            trip_likes (id)
+          ''')
+          .eq('is_public', true)
+          .order(sortBy, ascending: false)
+          .limit(limit);
+
+      final List<dynamic> tripsList = response;
+      // Similar processing to getTrips, but without specific user context for likes/saves initially
+      return tripsList.map((trip) {
+        final userData = trip['users'] as Map<String, dynamic>;
+        final author = UserModel.fromJson({
+          ...userData,
+          'created_at': DateTime.now().toIso8601String(), 
+          'updated_at': DateTime.now().toIso8601String(), 
+        });
+        // For generic public trips, isLiked/isSaved would depend on whether a user is logged in
+        // and if we want to make those checks here or on the TripDetailScreen.
+        // For now, defaulting them to false.
+        return TripModel.fromJson(
+          trip, 
+          author: author,
+          isLikedByCurrentUser: false, 
+          isSavedByCurrentUser: false, 
+        );
+      }).toList();
+    } catch (e, stackTrace) {
+      _logger.e('Error fetching public trips', e, stackTrace);
+      return [];
+    }
+  }
 }
