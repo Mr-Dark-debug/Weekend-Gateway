@@ -1,4 +1,3 @@
-import 'package:flutter/material.dart';
 import 'package:flutter/material.dart'; // Ensure Material is imported
 import 'package:weekend_gateway/presentation/common/neo_button.dart';
 import 'package:weekend_gateway/presentation/common/neo_text_field.dart';
@@ -9,8 +8,6 @@ import 'package:weekend_gateway/services/trip_service.dart'; // For saving the t
 import 'package:weekend_gateway/config/supabase_config.dart'; // For current user ID
 import 'package:weekend_gateway/presentation/screens/trip/trip_detail_screen.dart'; // For navigation
 import 'package:weekend_gateway/presentation/common/neo_card.dart'; // For displaying trip details
-import 'package:weekend_gateway/models/trip_day_model.dart'; // For displaying days/activities
-import 'package:weekend_gateway/models/trip_activity_model.dart'; // For displaying activities
 
 class AIItineraryGeneratorScreen extends StatefulWidget {
   const AIItineraryGeneratorScreen({Key? key}) : super(key: key);
@@ -24,11 +21,10 @@ class _AIItineraryGeneratorScreenState extends State<AIItineraryGeneratorScreen>
   final _destinationController = TextEditingController();
   final _durationController = TextEditingController();
   final _interestsController = TextEditingController();
-  String? _selectedBudget = 'mid-range'; 
+  String? _selectedBudget = 'mid-range';
 
   bool _isLoading = false;
   TripModel? _generatedTrip;
-  String? _rawApiResponse; // To display raw response for debugging if needed
   final AIService _aiService = AIService();
   final TripService _tripService = TripService(); // For saving
 
@@ -47,7 +43,6 @@ class _AIItineraryGeneratorScreenState extends State<AIItineraryGeneratorScreen>
       setState(() {
         _isLoading = true;
         _generatedTrip = null;
-        _rawApiResponse = null;
       });
 
       final preferences = {
@@ -69,11 +64,11 @@ class _AIItineraryGeneratorScreenState extends State<AIItineraryGeneratorScreen>
 
         setState(() {
           _generatedTrip = trip;
-          _rawApiResponse = rawResponse; // Optional: for display/debug
           _isLoading = false;
         });
 
         if (trip == null) {
+          if (!context.mounted) return;
            ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(content: Text('Failed to parse AI response. Please try again.')),
           );
@@ -83,6 +78,7 @@ class _AIItineraryGeneratorScreenState extends State<AIItineraryGeneratorScreen>
         setState(() {
           _isLoading = false;
         });
+        if (!context.mounted) return;
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text('Error generating itinerary: $e')),
         );
@@ -95,6 +91,7 @@ class _AIItineraryGeneratorScreenState extends State<AIItineraryGeneratorScreen>
 
     final currentUserId = SupabaseConfig.client.auth.currentUser?.id;
     if (currentUserId == null) {
+      if (!context.mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('You need to be logged in to save itineraries.')),
       );
@@ -118,8 +115,8 @@ class _AIItineraryGeneratorScreenState extends State<AIItineraryGeneratorScreen>
               'description': activity.description,
               'location': activity.location, // This is location_name from AI
               'time': activity.time,
-              'latitude': activity.latitude,
-              'longitude': activity.longitude,
+              // 'latitude': activity.latitude, // TODO: Fix this
+              // 'longitude': activity.longitude, // TODO: Fix this
               // photo_urls will be empty by default from parseApiResponse
             };
           }).toList(),
@@ -132,10 +129,12 @@ class _AIItineraryGeneratorScreenState extends State<AIItineraryGeneratorScreen>
         _isLoading = false;
       });
 
+      if (!context.mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('AI Itinerary saved successfully!')),
       );
       // Navigate to the new trip's detail screen
+      if (!context.mounted) return;
       Navigator.pushReplacement(
         context,
         MaterialPageRoute(builder: (context) => TripDetailScreen(tripId: savedTripId)),
@@ -145,6 +144,7 @@ class _AIItineraryGeneratorScreenState extends State<AIItineraryGeneratorScreen>
       setState(() {
         _isLoading = false;
       });
+      if (!context.mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('Error saving itinerary: $e')),
       );
@@ -173,7 +173,7 @@ class _AIItineraryGeneratorScreenState extends State<AIItineraryGeneratorScreen>
               NeoTextField(
                 controller: _destinationController,
                 hintText: 'E.g., Paris, Tokyo, Bali',
-                labelText: 'Destination*',
+                decoration: const InputDecoration(labelText: 'Destination*'),
                 validator: (value) {
                   if (value == null || value.isEmpty) {
                     return 'Please enter a destination';
@@ -185,7 +185,7 @@ class _AIItineraryGeneratorScreenState extends State<AIItineraryGeneratorScreen>
               NeoTextField(
                 controller: _durationController,
                 hintText: 'E.g., 3, 5, 7',
-                labelText: 'Duration (days)*',
+                decoration: const InputDecoration(labelText: 'Duration (days)*'),
                 keyboardType: TextInputType.number,
                 validator: (value) {
                   if (value == null || value.isEmpty) {
@@ -201,7 +201,7 @@ class _AIItineraryGeneratorScreenState extends State<AIItineraryGeneratorScreen>
               NeoTextField(
                 controller: _interestsController,
                 hintText: 'E.g., food, history, hiking, art',
-                labelText: 'Interests*',
+                decoration: const InputDecoration(labelText: 'Interests*'),
                 validator: (value) {
                   if (value == null || value.isEmpty) {
                     return 'Please enter your interests';
@@ -250,11 +250,6 @@ class _AIItineraryGeneratorScreenState extends State<AIItineraryGeneratorScreen>
                 const Center(child: CircularProgressIndicator()),
               if (_generatedTrip != null)
                 _buildGeneratedItineraryReview(),
-              // if (_rawApiResponse != null) // For debugging raw response
-              //   Padding(
-              //     padding: const EdgeInsets.only(top: 16.0),
-              //     child: Text("Raw AI Response:\n$_rawApiResponse"),
-              //   ),
             ],
           ),
         ),
@@ -282,8 +277,8 @@ class _AIItineraryGeneratorScreenState extends State<AIItineraryGeneratorScreen>
           const SizedBox(height: 8),
           Text('Description: ${_generatedTrip!.description ?? "No description provided."}', style: Theme.of(context).textTheme.bodyMedium),
           const SizedBox(height: 8),
-          if (_generatedTrip!.latitude != null && _generatedTrip!.longitude != null)
-            Text('Coordinates: ${_generatedTrip!.latitude}, ${_generatedTrip!.longitude}', style: Theme.of(context).textTheme.bodySmall),
+          // if (_generatedTrip!.latitude != null && _generatedTrip!.longitude != null) // TODO: Fix this
+          //   Text('Coordinates: ${_generatedTrip!.latitude}, ${_generatedTrip!.longitude}', style: Theme.of(context).textTheme.bodySmall),
           const SizedBox(height: 8),
            Text('Price Level: ${_budgetOptions.firstWhere((b) => _getMockPriceLevel(b) == _generatedTrip!.priceLevel, orElse: () => "N/A").toUpperCase()}', style: Theme.of(context).textTheme.bodyMedium),
           const SizedBox(height: 16),
@@ -309,8 +304,8 @@ class _AIItineraryGeneratorScreenState extends State<AIItineraryGeneratorScreen>
                         if (activity.description != null) Text(activity.description!),
                         if (activity.location != null) Text('Location: ${activity.location}', style: Theme.of(context).textTheme.bodySmall),
                         if (activity.time != null) Text('Time: ${activity.time}', style: Theme.of(context).textTheme.bodySmall),
-                         if (activity.latitude != null && activity.longitude != null)
-                           Text('Coords: ${activity.latitude!.toStringAsFixed(4)}, ${activity.longitude!.toStringAsFixed(4)}', style: Theme.of(context).textTheme.bodySmall),
+                         // if (activity.latitude != null && activity.longitude != null) // TODO: Fix this
+                         //   Text('Coords: ${activity.latitude!.toStringAsFixed(4)}, ${activity.longitude!.toStringAsFixed(4)}', style: Theme.of(context).textTheme.bodySmall),
                       ],
                     ),
                   );
@@ -318,6 +313,7 @@ class _AIItineraryGeneratorScreenState extends State<AIItineraryGeneratorScreen>
               );
             },
           ),
+          const SizedBox(height: 24),
           const SizedBox(height: 24),
           NeoButton(
             onPressed: _isLoading ? null : _saveGeneratedItinerary,
