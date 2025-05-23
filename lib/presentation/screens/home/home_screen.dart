@@ -32,36 +32,6 @@ class _HomeScreenState extends State<HomeScreen> {
     ];
   }
 
-  final List<Map<String, dynamic>> _itineraries = [
-    {
-      'id': 'paris123',
-      'title': 'Weekend in Paris',
-      'author': 'Maria C.',
-      'location': 'Paris, France',
-      'days': 3,
-      'rating': 4.8,
-      'image': 'https://images.unsplash.com/photo-1502602898657-3e91760cbb34?q=80&w=2073',
-    },
-    {
-      'id': 'barca456',
-      'title': 'Barcelona Food Tour',
-      'author': 'Carlos M.',
-      'location': 'Barcelona, Spain',
-      'days': 2,
-      'rating': 4.6,
-      'image': 'https://images.unsplash.com/photo-1583422409516-2895a77efded?q=80&w=2070',
-    },
-    {
-      'id': 'tokyo789',
-      'title': 'Tokyo Adventure',
-      'author': 'Kenji T.',
-      'location': 'Tokyo, Japan',
-      'days': 4,
-      'rating': 4.9,
-      'image': 'https://images.unsplash.com/photo-1503899036084-c55cdd92da26?q=80&w=2187',
-    },
-  ];
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -71,10 +41,7 @@ class _HomeScreenState extends State<HomeScreen> {
         actions: _buildAppBarActions(),
         automaticallyImplyLeading: false,
       ),
-      body: IndexedStack(
-        index: _currentIndex,
-        children: _pages,
-      ),
+      body: IndexedStack(index: _currentIndex, children: _pages),
       bottomNavigationBar: BottomNavigationBar(
         items: const [
           BottomNavigationBarItem(
@@ -106,9 +73,14 @@ class _HomeScreenState extends State<HomeScreen> {
         },
         type: BottomNavigationBarType.fixed,
         selectedItemColor: AppTheme.primaryAccent,
-        unselectedItemColor: AppTheme.primaryForeground.withOpacity(0.7),
+        unselectedItemColor: AppTheme.primaryForeground.withAlpha(
+          (255 * 0.7).round(),
+        ),
         backgroundColor: AppTheme.primaryBackground,
-        selectedLabelStyle: const TextStyle(fontFamily: 'RobotoMono', fontWeight: FontWeight.bold),
+        selectedLabelStyle: const TextStyle(
+          fontFamily: 'RobotoMono',
+          fontWeight: FontWeight.bold,
+        ),
         unselectedLabelStyle: const TextStyle(fontFamily: 'RobotoMono'),
       ),
     );
@@ -132,7 +104,13 @@ class _HomeScreenState extends State<HomeScreen> {
       default:
         title = 'WEEKEND GATEWAY';
     }
-    return Text(title, style: const TextStyle(fontFamily: 'RobotoMono', fontWeight: FontWeight.bold));
+    return Text(
+      title,
+      style: const TextStyle(
+        fontFamily: 'RobotoMono',
+        fontWeight: FontWeight.bold,
+      ),
+    );
   }
 
   List<Widget>? _buildAppBarActions() {
@@ -174,7 +152,8 @@ class _HomeContent extends StatelessWidget {
       'rating': 4.8,
       'price': 'Medium',
       'price_level': 2, // 1=Budget, 2=Medium, 3=Luxury
-      'image': 'https://images.unsplash.com/photo-1502602898657-3e91760cbb34?q=80&w=2073',
+      'image':
+          'https://images.unsplash.com/photo-1502602898657-3e91760cbb34?q=80&w=2073',
     },
     {
       'id': '123e4567-e89b-12d3-a456-426614174001',
@@ -185,7 +164,8 @@ class _HomeContent extends StatelessWidget {
       'rating': 4.6,
       'price': 'Budget',
       'price_level': 1,
-      'image': 'https://images.unsplash.com/photo-1583422409516-2895a77efded?q=80&w=2070',
+      'image':
+          'https://images.unsplash.com/photo-1583422409516-2895a77efded?q=80&w=2070',
     },
     {
       'id': '123e4567-e89b-12d3-a456-426614174002',
@@ -196,7 +176,8 @@ class _HomeContent extends StatelessWidget {
       'rating': 4.9,
       'price': 'Luxury',
       'price_level': 3,
-      'image': 'https://images.unsplash.com/photo-1503899036084-c55cdd92da26?q=80&w=2187',
+      'image':
+          'https://images.unsplash.com/photo-1503899036084-c55cdd92da26?q=80&w=2187',
     },
   ];
 
@@ -226,12 +207,15 @@ class _HomeContent extends StatelessWidget {
       children: [
         Text(
           'PLAN WITH AI',
-          style: Theme.of(context).textTheme.titleLarge?.copyWith(fontFamily: 'RobotoMono', fontWeight: FontWeight.bold),
+          style: Theme.of(context).textTheme.titleLarge?.copyWith(
+            fontFamily: 'RobotoMono',
+            fontWeight: FontWeight.bold,
+          ),
         ),
         const SizedBox(height: 16),
         NeoCard(
           onTap: () {
-            Navigator.pushNamed(context, AppRoutes.aiItineraryGenerator);
+            // Navigator.pushNamed(context, AppRoutes.aiItineraryGenerator); // TODO: Add route to AppRoutes
           },
           child: Padding(
             padding: const EdgeInsets.all(16.0),
@@ -244,18 +228,28 @@ class _HomeContent extends StatelessWidget {
                     children: [
                       Text(
                         'AI Itinerary Planner',
-                        style: Theme.of(context).textTheme.titleMedium?.copyWith(fontFamily: 'RobotoMono', fontWeight: FontWeight.bold),
+                        style: Theme.of(context).textTheme.titleMedium
+                            ?.copyWith(
+                              fontFamily: 'RobotoMono',
+                              fontWeight: FontWeight.bold,
+                            ),
                       ),
                       const SizedBox(height: 4),
                       Text(
                         'Let our AI craft your perfect trip in seconds!',
-                         style: Theme.of(context).textTheme.bodyMedium?.copyWith(fontFamily: 'RobotoMono'),
+                        style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                          fontFamily: 'RobotoMono',
+                        ),
                       ),
                     ],
                   ),
                 ),
                 const SizedBox(width: 16),
-                const Icon(Icons.auto_awesome, color: AppTheme.primaryAccent, size: 32),
+                const Icon(
+                  Icons.auto_awesome,
+                  color: AppTheme.primaryAccent,
+                  size: 32,
+                ),
               ],
             ),
           ),
@@ -265,7 +259,8 @@ class _HomeContent extends StatelessWidget {
   }
 
   Widget _buildWelcomeSection(BuildContext context) {
-    final userName = SupabaseConfig.currentUser?.email?.split('@').first ?? 'Traveler';
+    final userName =
+        SupabaseConfig.currentUser?.email?.split('@').first ?? 'Traveler';
 
     return Container(
       padding: const EdgeInsets.all(16),
@@ -281,28 +276,45 @@ class _HomeContent extends StatelessWidget {
         children: [
           Text(
             'HI, ${userName.toUpperCase()}!',
-            style: Theme.of(context).textTheme.headlineMedium?.copyWith(fontFamily: 'RobotoMono', color: AppTheme.primaryForeground),
+            style: Theme.of(context).textTheme.headlineMedium?.copyWith(
+              fontFamily: 'RobotoMono',
+              color: AppTheme.primaryForeground,
+            ),
           ),
           const SizedBox(height: 8),
           Text(
             'WHERE TO THIS WEEKEND?',
-            style: Theme.of(context).textTheme.bodyLarge?.copyWith(fontFamily: 'RobotoMono', color: AppTheme.primaryForeground),
+            style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+              fontFamily: 'RobotoMono',
+              color: AppTheme.primaryForeground,
+            ),
           ),
           const SizedBox(height: 16),
           TextField(
             style: const TextStyle(fontFamily: 'RobotoMono'),
             decoration: InputDecoration(
               hintText: 'Search destinations',
-              hintStyle: TextStyle(fontFamily: 'RobotoMono', color: AppTheme.primaryForeground.withOpacity(0.7)),
+              hintStyle: TextStyle(
+                fontFamily: 'RobotoMono',
+                color: AppTheme.primaryForeground.withAlpha(
+                  (255 * 0.7).round(),
+                ),
+              ),
               prefixIcon: Icon(Icons.search, color: AppTheme.primaryForeground),
               filled: true,
               fillColor: AppTheme.primaryBackground,
               border: OutlineInputBorder(
-                borderSide: BorderSide(color: AppTheme.primaryForeground, width: AppTheme.borderWidth),
+                borderSide: BorderSide(
+                  color: AppTheme.primaryForeground,
+                  width: AppTheme.borderWidth,
+                ),
                 borderRadius: BorderRadius.zero,
               ),
               focusedBorder: OutlineInputBorder(
-                borderSide: BorderSide(color: AppTheme.primaryAccent, width: AppTheme.borderWidth),
+                borderSide: BorderSide(
+                  color: AppTheme.primaryAccent,
+                  width: AppTheme.borderWidth,
+                ),
                 borderRadius: BorderRadius.zero,
               ),
             ),
@@ -321,13 +333,23 @@ class _HomeContent extends StatelessWidget {
           children: [
             Text(
               'FEATURED ITINERARIES',
-              style: Theme.of(context).textTheme.titleLarge?.copyWith(fontFamily: 'RobotoMono', fontWeight: FontWeight.bold),
+              style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                fontFamily: 'RobotoMono',
+                fontWeight: FontWeight.bold,
+              ),
             ),
             TextButton(
               onPressed: () {
                 Navigator.pushNamed(context, AppRoutes.search);
               },
-              child: Text('SEE ALL', style: TextStyle(fontFamily: 'RobotoMono', color: AppTheme.primaryAccent, fontWeight: FontWeight.bold)),
+              child: Text(
+                'SEE ALL',
+                style: TextStyle(
+                  fontFamily: 'RobotoMono',
+                  color: AppTheme.primaryAccent,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
             ),
           ],
         ),
@@ -340,105 +362,125 @@ class _HomeContent extends StatelessWidget {
             itemBuilder: (context, index) {
               final itinerary = _itineraries[index];
               return Container(
-                width: 260,
-                margin: const EdgeInsets.only(right: 16),
-                child: NeoCard(
-                  onTap: () {
-                    Navigator.pushNamed(
-                      context,
-                      AppRoutes.tripDetail,
-                      arguments: itinerary['id'],
-                    );
-                  },
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Container(
-                        height: 150,
-                        decoration: BoxDecoration(
-                          border: Border(
-                            bottom: BorderSide(
-                              color: AppTheme.primaryForeground,
-                              width: AppTheme.borderWidth,
-                            ),
-                          ),
-                          image: DecorationImage(
-                            image: NetworkImage(itinerary['image']),
-                            fit: BoxFit.cover,
-                          ),
-                        ),
-                      ),
-                      Padding(
-                        padding: const EdgeInsets.all(12),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              itinerary['title'],
-                              style: Theme.of(context).textTheme.titleMedium?.copyWith(fontFamily: 'RobotoMono', fontWeight: FontWeight.bold),
-                              maxLines: 1,
-                              overflow: TextOverflow.ellipsis,
-                            ),
-                            const SizedBox(height: 8),
-                            Row(
-                              children: [
-                                Icon(Icons.location_on, size: 16, color: AppTheme.primaryForeground),
-                                const SizedBox(width: 4),
-                                Expanded(
-                                  child: Text(
-                                    itinerary['location'],
-                                    style: Theme.of(context).textTheme.bodyMedium?.copyWith(fontFamily: 'RobotoMono'),
-                                    maxLines: 1,
-                                    overflow: TextOverflow.ellipsis,
-                                  ),
+                    width: 260,
+                    margin: const EdgeInsets.only(right: 16),
+                    child: NeoCard(
+                      onTap: () {
+                        Navigator.pushNamed(
+                          context,
+                          AppRoutes.tripDetail,
+                          arguments: itinerary['id'],
+                        );
+                      },
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Container(
+                            height: 150,
+                            decoration: BoxDecoration(
+                              border: Border(
+                                bottom: BorderSide(
+                                  color: AppTheme.primaryForeground,
+                                  width: AppTheme.borderWidth,
                                 ),
-                              ],
+                              ),
+                              image: DecorationImage(
+                                image: NetworkImage(itinerary['image']),
+                                fit: BoxFit.cover,
+                              ),
                             ),
-                            const SizedBox(height: 8),
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          ),
+                          Padding(
+                            padding: const EdgeInsets.all(12),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 Text(
-                                  '${itinerary['days']} DAYS',
-                                  style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                                  itinerary['title'],
+                                  style: Theme.of(context).textTheme.titleMedium
+                                      ?.copyWith(
                                         fontFamily: 'RobotoMono',
                                         fontWeight: FontWeight.bold,
                                       ),
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
                                 ),
+                                const SizedBox(height: 8),
                                 Row(
                                   children: [
-                                    Icon(Icons.star,
-                                      color: AppTheme.secondaryAccent,
+                                    Icon(
+                                      Icons.location_on,
                                       size: 16,
+                                      color: AppTheme.primaryForeground,
                                     ),
                                     const SizedBox(width: 4),
-                                    Text(
-                                      itinerary['rating'].toString(),
-                                      style: Theme.of(context).textTheme.bodyMedium?.copyWith(fontFamily: 'RobotoMono'),
+                                    Expanded(
+                                      child: Text(
+                                        itinerary['location'],
+                                        style: Theme.of(context)
+                                            .textTheme
+                                            .bodyMedium
+                                            ?.copyWith(
+                                              fontFamily: 'RobotoMono',
+                                            ),
+                                        maxLines: 1,
+                                        overflow: TextOverflow.ellipsis,
+                                      ),
                                     ),
                                   ],
                                 ),
+                                const SizedBox(height: 8),
+                                Row(
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.spaceBetween,
+                                  children: [
+                                    Text(
+                                      '${itinerary['days']} DAYS',
+                                      style: Theme.of(context)
+                                          .textTheme
+                                          .bodySmall
+                                          ?.copyWith(
+                                            fontFamily: 'RobotoMono',
+                                            fontWeight: FontWeight.bold,
+                                          ),
+                                    ),
+                                    Row(
+                                      children: [
+                                        Icon(
+                                          Icons.star,
+                                          color: AppTheme.secondaryAccent,
+                                          size: 16,
+                                        ),
+                                        const SizedBox(width: 4),
+                                        Text(
+                                          itinerary['rating'].toString(),
+                                          style: Theme.of(context)
+                                              .textTheme
+                                              .bodyMedium
+                                              ?.copyWith(
+                                                fontFamily: 'RobotoMono',
+                                              ),
+                                        ),
+                                      ],
+                                    ),
+                                  ],
+                                ),
+                                const SizedBox(height: 12),
+                                Text(
+                                  'BY ${itinerary['author']}',
+                                  style: Theme.of(context).textTheme.bodySmall
+                                      ?.copyWith(fontFamily: 'RobotoMono'),
+                                ),
                               ],
                             ),
-                            const SizedBox(height: 12),
-                            Text(
-                              'BY ${itinerary['author']}',
-                              style: Theme.of(context).textTheme.bodySmall?.copyWith(fontFamily: 'RobotoMono'),
-                            ),
-                          ],
-                        ),
+                          ),
+                        ],
                       ),
-                    ],
-                  ),
-                ),
-              ).animate().fade(
-                duration: 400.ms,
-                delay: (100 * index).ms
-              ).slideX(
-                begin: 0.2,
-                end: 0,
-                delay: (100 * index).ms
-              );
+                    ),
+                  )
+                  .animate()
+                  .fade(duration: 400.ms, delay: (100 * index).ms)
+                  .slideX(begin: 0.2, end: 0, delay: (100 * index).ms);
             },
           ),
         ),
@@ -460,7 +502,10 @@ class _HomeContent extends StatelessWidget {
       children: [
         Text(
           'POPULAR DESTINATIONS',
-          style: Theme.of(context).textTheme.titleLarge?.copyWith(fontFamily: 'RobotoMono', fontWeight: FontWeight.bold),
+          style: Theme.of(context).textTheme.titleLarge?.copyWith(
+            fontFamily: 'RobotoMono',
+            fontWeight: FontWeight.bold,
+          ),
         ),
         const SizedBox(height: 16),
         Wrap(
@@ -474,7 +519,10 @@ class _HomeContent extends StatelessWidget {
                 );
               },
               child: Container(
-                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 16,
+                  vertical: 12,
+                ),
                 decoration: BoxDecoration(
                   color: AppTheme.primaryBackground,
                   border: Border.all(
@@ -487,12 +535,17 @@ class _HomeContent extends StatelessWidget {
                   children: [
                     Text(
                       destination['name'] as String,
-                      style: Theme.of(context).textTheme.labelLarge?.copyWith(fontFamily: 'RobotoMono', fontWeight: FontWeight.bold),
+                      style: Theme.of(context).textTheme.labelLarge?.copyWith(
+                        fontFamily: 'RobotoMono',
+                        fontWeight: FontWeight.bold,
+                      ),
                     ),
                     const SizedBox(height: 4),
                     Text(
                       '${destination['count']} ITINERARIES',
-                      style: Theme.of(context).textTheme.bodySmall?.copyWith(fontFamily: 'RobotoMono'),
+                      style: Theme.of(
+                        context,
+                      ).textTheme.bodySmall?.copyWith(fontFamily: 'RobotoMono'),
                     ),
                   ],
                 ),
@@ -517,9 +570,9 @@ class _HomeContent extends StatelessWidget {
           const SizedBox(width: 8),
           Text(
             'CREATE ITINERARY',
-            style: Theme.of(context).textTheme.labelLarge?.copyWith(
-              color: Colors.white,
-            ),
+            style: Theme.of(
+              context,
+            ).textTheme.labelLarge?.copyWith(color: Colors.white),
           ),
         ],
       ),
